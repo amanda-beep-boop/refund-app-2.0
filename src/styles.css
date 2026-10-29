@@ -98,6 +98,30 @@ body {
   border-top: 2px solid var(--border-strong);
 }
 
+/* A lump sum's items, indented under their fee (Step 1 and Step 2). */
+.item-row {
+  padding-left: calc(var(--mantine-spacing-md) + 1.5rem) !important;
+}
+
+/* A table's total row starts with a strong rule. */
+.total-row {
+  border-top: 2px solid var(--border-strong);
+}
+
+/* A fee card's two decisions, refund amount and remit to, side by side. */
+.fee-decisions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--mantine-spacing-xl);
+  padding: var(--mantine-spacing-md);
+}
+
+@media (max-width: 48em) {
+  .fee-decisions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 /* Amounts line up in columns without switching to a monospace face. */
 .tabular {
   font-variant-numeric: tabular-nums;
@@ -107,13 +131,6 @@ body {
 dl,
 dd {
   margin: 0;
-}
-
-/* Fields side by side, wrapping as space runs out. */
-.field-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
-  gap: var(--mantine-spacing-md);
 }
 
 /* Fields in a row sized to their content. */

@@ -1,7 +1,6 @@
-import { Button, Group, Paper, Stack, Text, Title, VisuallyHidden } from '@mantine/core';
+import { Button, Group, Stack, Text, Title, VisuallyHidden } from '@mantine/core';
 import { useRefund } from '../state/RefundContext';
-import { accountAge, fmtDate } from '../lib/format';
-import { Mono, Field, DiscardDraftButton } from './shared';
+import { DiscardDraftButton } from './shared';
 import Step1SelectFees from './Step1SelectFees';
 import Step2Details from './Step2Details';
 import Step3Review from './Step3Review';
@@ -9,7 +8,7 @@ import Step3Review from './Step3Review';
 export const STEP_TITLES = ['Select Fees', 'Confirm Details', 'Review & Submit'];
 
 export default function FlowPage() {
-  const { step, customer, saveAndExit } = useRefund();
+  const { step, saveAndExit } = useRefund();
 
   return (
     <Stack gap="lg">
@@ -38,27 +37,6 @@ export default function FlowPage() {
           {step < STEP_TITLES.length ? `Next: ${STEP_TITLES[step]}` : 'Last step'}
         </Text>
       </div>
-
-      {/* A white card like the customer card on the home page. Light blue is reserved for
-          selected rows, so it isn't used for anything else. */}
-      <Paper withBorder radius="sm" p="md">
-        <dl className="field-grid">
-          <Field label="Customer">
-            <Text inherit>{customer.name}</Text>
-            <Text inherit c="dimmed">
-              Customer ID <Mono fz={13} c="inherit">{customer.id}</Mono>
-            </Text>
-          </Field>
-          <Field label="Team">{customer.team}</Field>
-          <Field label="Position">{customer.position}</Field>
-          <Field label="Account age">
-            <Text inherit>{accountAge(customer.accountOpened)}</Text>
-            <Text inherit c="dimmed">
-              Since {fmtDate(customer.accountOpened)}
-            </Text>
-          </Field>
-        </dl>
-      </Paper>
 
       {step === 1 && <Step1SelectFees />}
       {step === 2 && <Step2Details />}

@@ -13,9 +13,8 @@ import {
 } from '@mantine/core';
 import { useRefund } from '../state/RefundContext';
 import { CUSTOMERS } from '../data/mockData';
-import { accountAge, fmtDate } from '../lib/format';
 import { feeRequest } from '../lib/selectors';
-import { Mono, Field, Chevron } from './shared';
+import { Mono, Chevron, CustomerSummary } from './shared';
 
 const SAMPLE_IDS = Object.keys(CUSTOMERS);
 
@@ -100,24 +99,12 @@ export default function CustomerSearch() {
       {result && (
         <Card withBorder radius="sm" p="lg" mt="md">
           <Group justify="space-between" align="center" wrap="wrap">
-            <Stack gap="xs" style={{ flex: 1, minWidth: 260 }}>
-              <Group gap="xs" align="baseline">
-                <Title order={3} fz="lg" fw={600}>
-                  {result.name}
-                </Title>
-                <Mono c="dimmed">{result.id}</Mono>
-              </Group>
-              <dl className="field-grid">
-                <Field label="Team">{result.team}</Field>
-                <Field label="Position">{result.position}</Field>
-                <Field label="Account age">
-                  {accountAge(result.accountOpened)} (since {fmtDate(result.accountOpened)})
-                </Field>
-                <Field label="Fees available for refund">
-                  {result.fees.filter((f) => !feeRequest(f.id, requests)).length} of{' '}
-                  {result.fees.length} paid
-                </Field>
-              </dl>
+            <Stack gap={4} style={{ flex: 1, minWidth: 260 }}>
+              <CustomerSummary customer={result} order={3} />
+              <Text fz="sm" c="dimmed">
+                {result.fees.filter((f) => !feeRequest(f.id, requests)).length} of{' '}
+                {result.fees.length} paid fees available for refund
+              </Text>
             </Stack>
             <Button onClick={() => startDraft(result.id)} rightSection={<Chevron />}>
               Start Refund Request

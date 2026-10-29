@@ -1,7 +1,20 @@
 import { useState } from 'react';
-import { Button, Group, Paper, Select, Stack, Text, Textarea, Title } from '@mantine/core';
+import {
+  Box,
+  Button,
+  Group,
+  Paper,
+  Select,
+  Stack,
+  Table,
+  Text,
+  Textarea,
+  Title,
+  VisuallyHidden,
+} from '@mantine/core';
 import { useRefund } from '../state/RefundContext';
 import { JUSTIFICATIONS } from '../data/mockData';
+import { fmtDate } from '../lib/format';
 import {
   amountEntered,
   amountValid,
@@ -10,12 +23,86 @@ import {
   remarkValid,
   remitterValid,
   step2Valid,
+  accountLine,
 } from '../lib/selectors';
-import { Amount, Chevron, DisabledHint } from './shared';
+import { Amount, Chevron, CustomerSummary, DisabledHint, Mono } from './shared';
 import FeeCard from './FeeCard';
 
+// Everything the system pulled up, in one place: the customer, then each selected fee as paid,
+// with a lump sum's items beneath it and the total paid. The fee cards below hold only the
+// decisions, so reference and decisions don't compete.
+function PaidReference({ customer, fees }) {
+  return (
+    <Paper withBorder radius="sm">
+      <Box p="md">
+        <CustomerSummary customer={customer} />
+      </Box>
+      <Table fz="sm" verticalSpacing="sm" horizontalSpacing="md" styles={{ td: { verticalAlign: 'top' } }}>
+        <caption>
+          <VisuallyHidden>Fees in this request, as paid</VisuallyHidden>
+        </caption>
+        <Table.Thead>
+          <Table.Tr>
+            <Table.Th>Fee</Table.Th>
+            <Table.Th>Paid On</Table.Th>
+            <Table.Th>Payment</Table.Th>
+            <Table.Th ta="right">Amount</Table.Th>
+          </Table.Tr>
+        </Table.Thead>
+        <Table.Tbody>
+          {fees.flatMap((fee) => [
+            <Table.Tr key={fee.id}>
+              <Table.Td>
+                <Text inherit>{fee.desc}</Text>
+                <Text inherit c="dimmed">
+                  Fee ID <Mono fz={13} c="inherit">{fee.id}</Mono>
+                </Text>
+              </Table.Td>
+              <Table.Td style={{ whiteSpace: 'nowrap' }}>{fmtDate(fee.date)}</Table.Td>
+              <Table.Td>
+                <Text inherit>{fee.method}</Text>
+                {fee.acct && (
+                  <Text inherit c="dimmed">
+                    {accountLine(fee)}
+                  </Text>
+                )}
+              </Table.Td>
+              <Table.Td ta="right">
+                <Amount cents={fee.cents} />
+              </Table.Td>
+            </Table.Tr>,
+            // A lump sum's items, indented under it as in Step 1. Item amounts are gray so they
+            // aren't added up as more fees.
+            ...(fee.items || []).map((item, i) => (
+              <Table.Tr key={`${fee.id}-item-${i}`}>
+                <Table.Td colSpan={3} className="item-row">
+                  <VisuallyHidden>Item in {fee.desc}: </VisuallyHidden>
+                  {item.desc}
+                </Table.Td>
+                <Table.Td ta="right" c="dimmed">
+                  <Amount cents={item.cents} />
+                </Table.Td>
+              </Table.Tr>
+            )),
+          ])}
+        </Table.Tbody>
+        <Table.Tfoot className="total-row">
+          <Table.Tr>
+            <Table.Th scope="row" colSpan={3}>
+              Total Paid
+            </Table.Th>
+            <Table.Td ta="right" fw={600}>
+              <Amount cents={fees.reduce((s, f) => s + f.cents, 0)} />
+            </Table.Td>
+          </Table.Tr>
+        </Table.Tfoot>
+      </Table>
+    </Paper>
+  );
+}
+
 export default function Step2Details() {
-  const { draft, fees, total, setJustification, setRemark, setStep } = useRefund();
+  const { draft, customer, fees, total, setJustification, setRemark, setStep } = useRefund();
   const canContinue = step2Valid(draft);
   const justOk = justificationValid(draft);
   const remarkOk = remarkValid(draft);
@@ -38,7 +125,9 @@ export default function Step2Details() {
 
   return (
     <>
-      <Text c="dimmed" mt={-8} maw={640}>
+      <PaidReference customer={customer} fees={fees} />
+
+      <Text c="dimmed" maw={640}>
         Confirm the refund amount and the remitter for each fee. Remitter details come from the
         original payment record; change them only if the record is wrong.
       </Text>

@@ -17,13 +17,14 @@ import {
 import { useRefund } from '../state/RefundContext';
 import { STATUS_META } from '../theme';
 import { fmtDate } from '../lib/format';
-import { feeRequest, paymentMethodLabel } from '../lib/selectors';
+import { accountLine, feeRequest } from '../lib/selectors';
 import {
   Mono,
   Amount,
   Annotation,
   LumpSumAnnotation,
   Chevron,
+  CustomerSummary,
   DisabledHint,
   LockIcon,
 } from './shared';
@@ -125,10 +126,12 @@ export default function Step1SelectFees() {
         </Table.Td>
         <Table.Td style={{ whiteSpace: 'nowrap' }}>{fmtDate(fee.date)}</Table.Td>
         <Table.Td>
-          <Text inherit>{paymentMethodLabel(fee)}</Text>
-          <Text inherit c="dimmed">
-            {accountLine(fee)}
-          </Text>
+          <Text inherit>{fee.method}</Text>
+          {fee.acct && (
+            <Text inherit c="dimmed">
+              {accountLine(fee)}
+            </Text>
+          )}
         </Table.Td>
         <Table.Td ta="right" style={{ whiteSpace: 'nowrap' }}>
           <Amount cents={fee.cents} />
@@ -141,10 +144,10 @@ export default function Step1SelectFees() {
       </Table.Tr>,
       ...(isOpen
         ? fee.items.map((item, i) => (
-            <Table.Tr key={`${fee.id}-item-${i}`} bg="var(--surface-inset)">
+            <Table.Tr key={`${fee.id}-item-${i}`}>
               <Table.Td />
               <Table.Td />
-              <Table.Td style={{ paddingLeft: 22, borderLeft: '3px solid var(--border-strong)' }}>
+              <Table.Td className="item-row">
                 <Text inherit>
                   <VisuallyHidden>Item in {fee.desc}: </VisuallyHidden>
                   {item.desc}
@@ -164,12 +167,11 @@ export default function Step1SelectFees() {
   return (
     <>
       <Paper withBorder radius="sm">
+        {/* The customer heads their fees, as in Step 2's reference panel. */}
         <Box p="md">
-          <Title order={2} fz="lg">
-            Paid Fees
-          </Title>
+          <CustomerSummary customer={customer} />
           <Text fz="sm" c="dimmed" mt={2}>
-            Check each fee to include.
+            Paid fees. Check each fee to include.
           </Text>
         </Box>
         <Table.ScrollContainer minWidth={900}>
@@ -271,9 +273,3 @@ const inSentence = (s) =>
     .split(' ')
     .map((w) => (w === w.toUpperCase() ? w : w.toLowerCase()))
     .join(' ');
-
-// The account a fee was paid from. Services such as PayPal are their own "bank", so only the
-// account (an email address) is shown for them. Numbers use non-breaking spaces so they never
-// split across lines.
-const accountLine = (fee) =>
-  fee.bank === fee.method ? fee.acct : `${fee.bank} account ${fee.acct.replace(/ /g, ' ')}`;

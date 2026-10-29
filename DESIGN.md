@@ -15,6 +15,20 @@ the app stays consistent. For what the app does and how to run it, see the [READ
 - Light blue (`brand.0`) means one thing only: a checked row, in any table.
 - Amber and red mean something is wrong, never just "not filled in yet."
 
+## Page patterns
+
+- **Customer summary:** the customer's full name as a heading with the customer ID beside it
+  (`CustomerSummary`). It's the same wherever a customer appears: the home page search result,
+  above the fees in Step 1, and at the top of Step 2.
+- **Reference, then decisions:** on Confirm Details, what the system pulled up (the customer and
+  each fee as paid) is shown once at the top. The fee cards below hold only what the user
+  decides, and each decision group (Refund Amount, Remit To) is a heading.
+- **The refund amount is shown large** under its controls, the same for Full and Partial, and
+  only once there's a valid amount. "Paid" amounts are always labeled so they aren't mistaken
+  for it.
+- **Line items:** a lump sum's items are indented under their fee, with gray amounts so they
+  aren't added up as more fees. A total row starts with a strong rule.
+
 ## Status and flags
 
 - A filled pill (`StatusBadge`) is reserved for workflow status.
@@ -71,9 +85,8 @@ in the record sent to the OCFO must match the source, so the UI never rewrites d
   and export gets the same text.
 - **Don't use CSS `text-transform` on data.** Copy and paste, exports and some assistive
   technology get the original text, so the screen and the record would disagree.
-- **Composed copy:** when the UI builds a phrase around a controlled value ("Visa credit card
-  ••••2210", "In request RR-2026-0187 (under OCFO review)"), it may lowercase that value to fit
-  the sentence. Proper names and free text are never changed.
+- **Composed copy:** when the UI builds a phrase around a controlled value ("In request
+  RR-2026-0187 (under OCFO review)"), it may lowercase that value to fit the sentence. Proper names and free text are never changed.
 - **Submitted records are snapshots.** A request keeps the fee names, remitters and
   justification definition as they were when it was certified. Later edits to the source
   don't rewrite past requests.

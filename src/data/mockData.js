@@ -44,6 +44,9 @@ export const JUSTIFICATION_DEFINITION = Object.fromEntries(
   JUSTIFICATIONS.map((j) => [j.value, j.definition])
 );
 
+// Fees are paid by ACH, PayPal or, rarely, money order. A money order has no account (bank,
+// acct and instrument are null) and usually no remitter on file, so it can only be refunded by
+// paper check to an address the user enters.
 // Each fee carries its own remitter from the payment record (or null when the
 // record has none). remitter.method: "original" = refund to the instrument the
 // fee was paid with; "check" = paper check to the address.
@@ -65,7 +68,6 @@ export const CUSTOMERS = {
         bank: 'Truist',
         acct: '••••4471',
         method: 'ACH',
-        card: '—',
         instrument: 'ACH to Truist ••••4471',
         remitter: {
           name: 'Metro Transit Authority – Accounts Payable',
@@ -81,7 +83,6 @@ export const CUSTOMERS = {
         bank: 'Truist',
         acct: '••••4471',
         method: 'ACH',
-        card: '—',
         instrument: 'ACH to Truist ••••4471',
         remitter: {
           name: 'Metro Transit Authority – Accounts Payable',
@@ -97,7 +98,6 @@ export const CUSTOMERS = {
         bank: 'Truist',
         acct: '••••4471',
         method: 'ACH',
-        card: '—',
         instrument: 'ACH to Truist ••••4471',
         remitter: {
           name: 'Metro Transit Authority – Accounts Payable',
@@ -112,9 +112,8 @@ export const CUSTOMERS = {
         cents: 7500,
         bank: 'Truist',
         acct: '••••4471',
-        method: 'Credit card',
-        card: 'Visa ••••2210',
-        instrument: 'Visa ••••2210',
+        method: 'ACH',
+        instrument: 'ACH to Truist ••••4471',
         remitter: {
           name: 'Marisol Ortega',
           address: '1400 Wilson Blvd, Suite 610, Arlington, VA 22209',
@@ -129,7 +128,6 @@ export const CUSTOMERS = {
         bank: 'PayPal',
         acct: 'm.ortega@mta.example',
         method: 'PayPal',
-        card: '—',
         instrument: 'PayPal (m.ortega@mta.example)',
         items: [
           { desc: 'Vehicle Permit Renewal ×4', cents: 80000 },
@@ -147,11 +145,10 @@ export const CUSTOMERS = {
         desc: 'Duplicate Certificate Fee',
         date: '2026-08-22',
         cents: 3500,
-        bank: 'Capital One',
-        acct: '••••9083',
-        method: 'Debit card',
-        card: 'Mastercard ••••7745',
-        instrument: 'Mastercard ••••7745',
+        bank: null,
+        acct: null,
+        method: 'Money order',
+        instrument: null,
         remitter: null,
       },
     ],
@@ -171,7 +168,6 @@ export const CUSTOMERS = {
         bank: 'Navy Federal',
         acct: '••••1120',
         method: 'ACH',
-        card: '—',
         instrument: 'ACH to Navy Federal ••••1120',
         remitter: {
           name: 'Devin Achterberg',
@@ -187,7 +183,6 @@ export const CUSTOMERS = {
         bank: 'Navy Federal',
         acct: '••••1120',
         method: 'ACH',
-        card: '—',
         instrument: 'ACH to Navy Federal ••••1120',
         remitter: {
           name: 'Devin Achterberg',
@@ -200,11 +195,10 @@ export const CUSTOMERS = {
         desc: 'Shared Event Costs',
         date: '2026-06-28',
         cents: 51250,
-        bank: 'Splitwise',
-        acct: 'd.achterberg',
-        method: 'Splitwise',
-        card: '—',
-        instrument: 'Splitwise (d.achterberg)',
+        bank: 'PayPal',
+        acct: 'd.achterberg@parks.example',
+        method: 'PayPal',
+        instrument: 'PayPal (d.achterberg@parks.example)',
         items: [
           { desc: 'Tent Rental Share', cents: 21250 },
           { desc: 'Portable Restroom Share', cents: 18000 },
@@ -223,9 +217,8 @@ export const CUSTOMERS = {
         cents: 14500,
         bank: 'Navy Federal',
         acct: '••••1120',
-        method: 'Debit card',
-        card: 'Visa ••••0417',
-        instrument: 'Visa ••••0417',
+        method: 'ACH',
+        instrument: 'ACH to Navy Federal ••••1120',
         remitter: {
           name: 'Devin Achterberg',
           address: '2100 Clarendon Blvd, Arlington, VA 22201',
@@ -240,7 +233,6 @@ export const CUSTOMERS = {
         bank: 'Navy Federal',
         acct: '••••1120',
         method: 'ACH',
-        card: '—',
         instrument: 'ACH to Navy Federal ••••1120',
         remitter: {
           name: 'Devin Achterberg',
@@ -262,11 +254,10 @@ export const CUSTOMERS = {
         desc: 'Application Processing Fee (2025 Cycle)',
         date: '2026-05-15',
         cents: 12000,
-        bank: 'Wells Fargo',
-        acct: '••••3391',
-        method: 'Credit card',
-        card: 'Amex ••••1009',
-        instrument: 'Amex ••••1009',
+        bank: null,
+        acct: null,
+        method: 'Money order',
+        instrument: null,
         remitter: null,
       },
       {
@@ -276,9 +267,8 @@ export const CUSTOMERS = {
         cents: 12000,
         bank: 'Wells Fargo',
         acct: '••••3391',
-        method: 'Credit card',
-        card: 'Amex ••••1009',
-        instrument: 'Amex ••••1009',
+        method: 'ACH',
+        instrument: 'ACH to Wells Fargo ••••3391',
         remitter: {
           name: 'Priya Raman',
           address: '3500 Fairfax Dr, Arlington, VA 22203',
@@ -325,7 +315,6 @@ export const SEED_REQUESTS = [
         bank: 'Navy Federal',
         acct: '••••1120',
         method: 'ACH',
-        card: '—',
         instrument: 'ACH to Navy Federal ••••1120',
         remitter: R(
           'Devin Achterberg',
@@ -365,7 +354,6 @@ export const SEED_REQUESTS = [
         bank: 'Truist',
         acct: '••••4471',
         method: 'ACH',
-        card: '—',
         instrument: 'ACH to Truist ••••4471',
         remitter: R(
           'Metro Transit Authority – Accounts Payable',
@@ -404,9 +392,8 @@ export const SEED_REQUESTS = [
         refund: 9500,
         bank: 'Navy Federal',
         acct: '••••1120',
-        method: 'Debit card',
-        card: 'Visa ••••0417',
-        instrument: 'Visa ••••0417',
+        method: 'ACH',
+        instrument: 'ACH to Navy Federal ••••1120',
         remitter: R(
           'Devin Achterberg',
           '2100 Clarendon Blvd, Arlington, VA 22201',
@@ -444,7 +431,6 @@ export const SEED_REQUESTS = [
         bank: 'Truist',
         acct: '••••4471',
         method: 'ACH',
-        card: '—',
         instrument: 'ACH to Truist ••••4471',
         remitter: R(
           'Marisol Ortega',
@@ -484,12 +470,11 @@ export const SEED_REQUESTS = [
         date: '2026-05-15',
         cents: 12000,
         refund: 12000,
-        bank: 'Wells Fargo',
-        acct: '••••3391',
-        method: 'Credit card',
-        card: 'Amex ••••1009',
-        instrument: 'Amex ••••1009',
-        remitter: R('Priya Raman', '3500 Fairfax Dr, Arlington, VA 22203', 'original'),
+        bank: null,
+        acct: null,
+        method: 'Money order',
+        instrument: null,
+        remitter: R('Priya Raman', '3500 Fairfax Dr, Arlington, VA 22203', 'check'),
         remitterSource: 'manual',
         recordRemitter: null,
       },
@@ -528,7 +513,6 @@ export const SEED_REQUESTS = [
         bank: 'Navy Federal',
         acct: '••••1120',
         method: 'ACH',
-        card: '—',
         instrument: 'ACH to Navy Federal ••••1120',
         remitter: R(
           'Devin Achterberg',

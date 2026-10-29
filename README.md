@@ -23,7 +23,8 @@ npm run dev
 
 Sample customer IDs for the search: `C-104822`, `C-220917`, `C-301550` (click one under the
 search field to look it up). `C-104822` is the richest walkthrough — it covers a lump-sum PayPal
-fee, a fee with no remitter on file (manual entry required), and partial refunds. `C-220917`
+fee, a fee paid by money order (no remitter on file, so it's entered by hand and refunded by
+check), and partial refunds. `C-220917`
 shows the most fees already in a request (approved, under review, submitted, partial).
 
 To walk through the Staff-to-Supervisor handoff, start a request as Jordan Ellis (Staff), save it
@@ -60,17 +61,21 @@ Office", is a placeholder for that value (`OFFICE` in `src/data/mockData.js`).
    in progress at the top. "Start a New Refund Request" sits above the table. One draft at a
    time per office; while there is one, a banner in its place says who started it.
    Request IDs open the request record.
-2. **Select Fees** — every paid fee, with checkbox selection; lump-sum payments (PayPal,
-   Splitwise) expanded by default, selectable only as a whole. Fees already in a request
+2. **Select Fees** — every paid fee, with checkbox selection; lump-sum payments
+   expanded by default, selectable only as a whole. Fees are paid by ACH, PayPal or, rarely,
+   money order. Fees already in a request
    (any status) can't be requested twice; they sit in a collapsed "Already in a Refund
    Request (n)" group at the bottom of the table, read-only, each linking to its request.
    (Open question for the business: keep this group, or omit these fees.)
-3. **Confirm Details** — per-fee card with full/partial refund amount and the remitter from
-   the payment record. Partial starts empty and must be less than the fee (refunding all of it
-   is Full). Warnings appear only for real problems (an invalid amount, a remitter field left
+3. **Confirm Details** — reference first, then decisions. A panel at the top shows the customer
+   and each selected fee as paid (date, payment method, a lump sum's items, total paid). Below
+   it, one card per fee holds the two decisions: Refund Amount (Full or Partial, with the amount
+   to be refunded shown large) and Remit To (the remitter from the payment record). Partial
+   starts empty and must be less than the fee (refunding all of it is Full). Warnings appear only for real problems (an invalid amount, a remitter field left
    empty), not for fields that haven't been filled in yet; the hint by the disabled Continue
    button lists what's still needed. Remitters can be corrected (recorded as a note on the request) or
-   entered when the record has none. One request-level justification
+   entered when the record has none. A money order has no account to return funds to, so its
+   refund is always a paper check. One request-level justification
    (Processing Error, Clock Expired, Case Rejected or Other) and a required Requester Remark: a
    short summary of what is being refunded and why.
 4. **Review & Submit** — a preview of the exact record the OCFO will receive, with the legal

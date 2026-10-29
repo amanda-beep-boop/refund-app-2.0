@@ -13,17 +13,20 @@ import {
   Title,
 } from '@mantine/core';
 import { useRefund } from '../state/RefundContext';
-import { fmt, fmtDate, dollars, methodLabel, capitalize } from '../lib/format';
+import { fmt, dollars, methodLabel, capitalize } from '../lib/format';
 import {
   amountEntered,
   amountValid,
+  checkOnly,
   remitterSource,
   remitterValid,
   refundCents,
-  paidLabel,
   refundMethodLabel,
 } from '../lib/selectors';
-import { Mono, Amount, FieldGroup, IncompleteLabel, RemitterSourceAnnotation, LumpSumAnnotation } from './shared';
+import { Mono, Amount, FieldGroup, IncompleteLabel, RemitterSourceAnnotation } from './shared';
+
+// One card per fee holds the two decisions for it: how much to refund, and to whom. What was
+// paid (date, payment method, line items) is shown once, in the reference panel above the cards.
 
 export default function FeeCard({ fee }) {
   const { draft, setAmount, setRemitter, restoreRemitter } = useRefund();
@@ -83,23 +86,21 @@ export default function FeeCard({ fee }) {
             </Title>
             {invalid && <IncompleteLabel />}
           </Group>
-          <Group gap="md" align="baseline">
-            <Text fz="sm" c="dimmed">
-              Fee ID <Mono fz={13} c="inherit">{fee.id}</Mono>
-            </Text>
-            {fee.items && <LumpSumAnnotation count={fee.items.length} />}
-          </Group>
+          <Text fz="sm" c="dimmed">
+            Fee ID <Mono fz={13} c="inherit">{fee.id}</Mono>
+          </Text>
         </div>
-        <Text fz="sm">
-          Paid {fmtDate(fee.date)}:{' '}
-          <Text component="span" inherit c="dimmed">
-            {paidLabel(fee)}
+        {/* Labeled "Paid" so it isn't read as the refund amount, which can differ. */}
+        <Text>
+          Paid{' '}
+          <Text component="span" inherit fw={600}>
+            <Amount cents={fee.cents} />
           </Text>
         </Text>
       </Group>
 
-      <Group p="md" gap="xl" align="flex-start" wrap="wrap">
-        <FieldGroup legend="Refund amount" style={{ flex: '1 1 240px', minWidth: 240 }}>
+      <div className="fee-decisions">
+        <FieldGroup legend="Refund Amount" heading={3}>
           <Stack gap="xs">
             <Group gap="sm" align={partial ? 'flex-start' : 'center'}>
               <SegmentedControl
@@ -127,11 +128,7 @@ export default function FeeCard({ fee }) {
                   error={Boolean(amountError)}
                   aria-label={`Partial refund amount for ${fee.desc}, less than ${fmt(fee.cents)}`}
                 />
-              ) : (
-                <Text fz="sm">
-                  Refunding the full <Amount cents={fee.cents} />
-                </Text>
-              )}
+              ) : null}
             </Group>
             {/* The message sits under the whole row; inside the narrow input it wraps to 3 lines. */}
             {amountError && (
@@ -139,25 +136,34 @@ export default function FeeCard({ fee }) {
                 {amountError}
               </Text>
             )}
-            {partial && amountOk && (
-              <Text fz="sm">
-                Refunding <Amount cents={partialCents} /> of <Amount cents={fee.cents} />
-              </Text>
-            )}
             {partial && !amountEntered(fee, draft) && (
               <Text fz="sm" c="dimmed">
                 Enter an amount less than the full <Amount cents={fee.cents} />.
               </Text>
             )}
+            {/* The amount that will be refunded, in one place and large, for Full and Partial
+                alike. Shown only once there's a valid amount, so it never stands in for one. */}
+            {(!partial || amountOk) && (
+              <div>
+                <Text fz="h2" fw={600} lh={1.2}>
+                  <Amount cents={partial ? partialCents : fee.cents} />
+                </Text>
+                <Text fz="sm" c="dimmed">
+                  {partial ? 'Partial' : 'Full'} refund of <Amount cents={fee.cents} /> paid
+                </Text>
+              </div>
+            )}
           </Stack>
         </FieldGroup>
 
-        <FieldGroup legend="Remit to" style={{ flex: '1.5 1 300px', minWidth: 280 }}>
+        <FieldGroup legend="Remit To" heading={3}>
           {showForm ? (
             <Stack gap="sm">
               {!fee.remitter ? (
                 <Alert color="gray" variant="light" radius="sm" p="xs">
-                  The payment record has no remitter on file. Enter who this refund should go to.
+                  {checkOnly(fee)
+                    ? 'Paid by money order, so the refund is a check, and the payment record has no remitter on file. Enter who the check should be mailed to.'
+                    : 'The payment record has no remitter on file. Enter who this refund should go to.'}
                 </Alert>
               ) : (
                 <Alert color="yellow" variant="light" radius="sm" p="xs">
@@ -181,15 +187,21 @@ export default function FeeCard({ fee }) {
                 onBlur={() => setRemitter(fee.id, { addressTouched: true })}
                 error={addressError}
               />
-              <Select
-                label="Refund method"
-                data={[
-                  { value: 'original', label: capitalize(methodLabel(fee, 'original')) },
-                  { value: 'check', label: capitalize(methodLabel(fee, 'check')) },
-                ]}
-                value={remitter.method}
-                onChange={(method) => setRemitter(fee.id, { method: method || 'original' })}
-              />
+              {/* A money order has no account to return funds to: the method is fixed, so it's
+                  stated rather than offered as a choice of one. */}
+              {checkOnly(fee) ? (
+                <Text fz="sm">{refundMethodLabel(fee, 'check')}</Text>
+              ) : (
+                <Select
+                  label="Refund method"
+                  data={[
+                    { value: 'original', label: capitalize(methodLabel(fee, 'original')) },
+                    { value: 'check', label: capitalize(methodLabel(fee, 'check')) },
+                  ]}
+                  value={remitter.method}
+                  onChange={(method) => setRemitter(fee.id, { method: method || 'original' })}
+                />
+              )}
               <Group gap="xs">
                 {showSource && <RemitterSourceAnnotation source={source} />}
                 <Button
@@ -226,7 +238,9 @@ export default function FeeCard({ fee }) {
           ) : (
             <Stack gap="xs">
               <Text component="div" fz="sm">
-                <Text inherit>{remitter.name}</Text>
+                <Text inherit fw={600}>
+                  {remitter.name}
+                </Text>
                 <Text inherit c="dimmed">
                   {remitter.address}
                 </Text>
@@ -253,7 +267,7 @@ export default function FeeCard({ fee }) {
             </Stack>
           )}
         </FieldGroup>
-      </Group>
+      </div>
     </Paper>
   );
 }

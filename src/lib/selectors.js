@@ -14,6 +14,9 @@ export const draftCustomer = (draft) => (draft ? CUSTOMERS[draft.customer] : nul
 export const selectedFees = (draft) =>
   draft ? draftCustomer(draft).fees.filter((f) => draft.selected.has(f.id)) : [];
 
+// A money order has no account to return funds to, so its only refund method is a paper check.
+export const checkOnly = (fee) => fee.method === 'Money order';
+
 export const initialFeeState = (fee) => ({
   amount: { mode: 'full', input: dollars(fee.cents) },
   remitter: fee.remitter
@@ -24,7 +27,7 @@ export const initialFeeState = (fee) => ({
         address: fee.remitter.address,
         method: fee.remitter.method,
       }
-    : { editing: true, touched: false, name: '', address: '', method: 'original' },
+    : { editing: true, touched: false, name: '', address: '', method: checkOnly(fee) ? 'check' : 'original' },
 });
 
 export const remitterSource = (fee, draft) => {
@@ -120,7 +123,6 @@ export const draftRequest = (draft, user) => {
         bank: f.bank,
         acct: f.acct,
         method: f.method,
-        card: f.card,
         instrument: f.instrument,
         items: f.items || null,
         remitter: { name: r.name.trim(), address: r.address.trim(), method: r.method },
@@ -148,15 +150,13 @@ export const canSubmit = (user) => user.role === 'supervisor';
 // Wording for a submitted request's record. Shared by the request modal and its PDF so the two
 // always say the same thing; stated literally, since the record is used for legal purposes.
 
-// How a fee was paid: "Visa credit card ••••2210" for cards; otherwise the method ("ACH",
-// "PayPal"). The masked number is joined with a non-breaking space so it never splits across lines.
-export const paymentMethodLabel = (f) => {
-  if (f.card === '—') return f.method;
-  const [brand, number] = f.card.split(' ');
-  return `${brand} ${f.method.toLowerCase()}\u00a0${number}`;
-};
+// The account a fee was paid from. Services such as PayPal are their own "bank", so only the
+// account (an email address) is shown for them; a money order has no account. Numbers use
+// non-breaking spaces so they never split across lines.
+export const accountLine = (fee) =>
+  fee.bank === fee.method ? fee.acct : `${fee.bank} account ${fee.acct.replace(/ /g, ' ')}`;
 
-export const paidLabel = (f) => `${fmt(f.cents)} by ${paymentMethodLabel(f)}`;
+export const paidLabel = (f) => `${fmt(f.cents)} by ${f.method}`;
 
 export const refundMethodLabel = (f, method = f.remitter.method) =>
   `Refund method: ${methodLabel(f, method)}`;

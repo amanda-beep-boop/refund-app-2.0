@@ -45,17 +45,6 @@ export const nowISO = () => {
 
 export const todayISO = () => nowISO().slice(0, 10);
 
-// Whole calendar months since the account opened, so it never reads "2 yrs 12 mo".
-export const accountAge = (openedISO) => {
-  const opened = new Date(openedISO + 'T00:00:00');
-  const now = new Date();
-  let months = (now.getFullYear() - opened.getFullYear()) * 12 + now.getMonth() - opened.getMonth();
-  if (now.getDate() < opened.getDate()) months -= 1;
-  const y = Math.floor(months / 12);
-  const m = months % 12;
-  return y ? `${y} yr${y > 1 ? 's' : ''} ${m} mo` : `${m} mo`;
-};
-
 // How a refund is paid out, stated literally. Lowercase so it reads inside a sentence
 // ("Refund method: …"); capitalize it where it stands alone, such as a select option.
 // A masked number stays on the line with the word before it ("Truist ••••4471").

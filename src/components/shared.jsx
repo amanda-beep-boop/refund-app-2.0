@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Badge, Button, Group, Modal, Stack, Text } from '@mantine/core';
+import { Badge, Button, Group, Modal, Stack, Text, Title, VisuallyHidden } from '@mantine/core';
 import { STATUS_META } from '../theme';
 import { useRefund } from '../state/RefundContext';
 import { fmt } from '../lib/format';
@@ -65,13 +65,34 @@ export const Field = ({ label, children }) => (
 );
 
 // Groups related controls under a legend without the visual weight of Mantine's Fieldset.
-export const FieldGroup = ({ legend, children, ...props }) => (
+// `heading` (a level) makes the legend a heading, for a group that is one of the page's main
+// decisions: it reads as one, and screen reader users can reach it with heading navigation.
+export const FieldGroup = ({ legend, heading, children, ...props }) => (
   <fieldset className="plain-fieldset" {...props}>
     <legend>
-      <FieldLabel component="span">{legend}</FieldLabel>
+      {heading ? (
+        <Title order={heading} fz="md">
+          {legend}
+        </Title>
+      ) : (
+        <FieldLabel component="span">{legend}</FieldLabel>
+      )}
     </legend>
     {children}
   </fieldset>
+);
+
+// Who the customer is, the same everywhere: full name as the heading, customer ID beside it.
+export const CustomerSummary = ({ customer, order = 2 }) => (
+  <Group gap="sm" align="baseline" wrap="wrap">
+    <Title order={order} fz="lg">
+      {customer.name}
+    </Title>
+    <Mono c="dimmed">
+      <VisuallyHidden>Customer ID </VisuallyHidden>
+      {customer.id}
+    </Mono>
+  </Group>
 );
 
 export const Annotation = ({ tone = 'neutral', children }) => {
