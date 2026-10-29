@@ -345,7 +345,12 @@ const seeds: Omit<RefundRequest, 'total'>[] = [
           'original'
         ),
         remitterSource: 'record',
-        recordRemitter: null,
+        // The record's remitter at submission: the same, since it wasn't changed.
+        recordRemitter: R(
+          'Devin Achterberg',
+          '2100 Clarendon Blvd, Arlington, VA 22201',
+          'original'
+        ),
       },
     ],
     timeline: [
@@ -384,7 +389,12 @@ const seeds: Omit<RefundRequest, 'total'>[] = [
           'original'
         ),
         remitterSource: 'record',
-        recordRemitter: null,
+        // The record's remitter at submission: the same, since it wasn't changed.
+        recordRemitter: R(
+          'Metro Transit Authority – Accounts Payable',
+          '600 Fifth St NW, Washington, DC 20001',
+          'original'
+        ),
       },
     ],
     timeline: [
@@ -423,7 +433,12 @@ const seeds: Omit<RefundRequest, 'total'>[] = [
           'original'
         ),
         remitterSource: 'record',
-        recordRemitter: null,
+        // The record's remitter at submission: the same, since it wasn't changed.
+        recordRemitter: R(
+          'Devin Achterberg',
+          '2100 Clarendon Blvd, Arlington, VA 22201',
+          'original'
+        ),
       },
     ],
     timeline: [
@@ -543,7 +558,12 @@ const seeds: Omit<RefundRequest, 'total'>[] = [
           'original'
         ),
         remitterSource: 'record',
-        recordRemitter: null,
+        // The record's remitter at submission: the same, since it wasn't changed.
+        recordRemitter: R(
+          'Devin Achterberg',
+          '2100 Clarendon Blvd, Arlington, VA 22201',
+          'original'
+        ),
       },
     ],
     timeline: [{ status: 'submitted', at: '2026-09-19T16:05:00' }],

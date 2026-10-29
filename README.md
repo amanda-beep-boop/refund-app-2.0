@@ -20,8 +20,28 @@ backend, no auth. Anything the backend would own is marked in code comments.
 npm install
 npm run dev        # local server with hot reload
 npm run typecheck  # type check only
-npm run build      # type check, then a production build; a type error fails the build
+npm run check      # type check, then the data checks (scripts/check-data.ts)
+npm run build      # the checks, then a production build; a failed check fails the build
 ```
+
+## What you replace
+
+The POC runs on mock data and a stand-in for sign-in. These are the places that change when it
+is connected to real services; if something isn't in this table, it shouldn't need to change.
+
+| To connect… | Replace | Where |
+| --- | --- | --- |
+| Sign-in: the user's name, email, role and office | The body of `getSignedInUser`. Remove `listDemoAccounts` and the account switch in the account menu. | `src/data/api.ts`, `src/components/ProfileMenu.tsx` |
+| Customers and their paid fees | The bodies of `findCustomer` and `customerById`. Remove `listSampleCustomerIds` and the sample links under the search field. | `src/data/api.ts`, `src/components/CustomerSearch.tsx` |
+| Refund requests | The bodies of `listRequests`, `allocateRequestId` and `submitRequest`. The service assigns IDs at submission. | `src/data/api.ts` |
+| Justifications and their definitions | The body of `listJustifications`; the pending definitions in `JUSTIFICATIONS`. | `src/data/api.ts`, `src/data/mockData.ts` |
+| E-Note notifications | `buildNotifications` becomes the service's record of what it sent. | `src/data/mockData.ts`, `src/state/RefundContext.tsx` |
+| The certification wording | The checkbox statement and the "Certified and submitted by" line, once counsel supplies them. | `src/components/Step3Review.tsx`, `src/components/RequestRecord.tsx`, `src/lib/exports.ts` |
+| Exports (PDF, CSV, Word) | Generate server-side, so the OCFO record and the download are the same artifact. | `src/lib/exports.ts` |
+| The office's draft | Persist it per office; today it lives in memory and is lost on reload. | `src/state/RefundContext.tsx` |
+
+The shapes every function returns are the contract in `src/types.ts`. Map each service's
+response to them there, and nothing in the UI changes.
 
 ## Where things live
 
@@ -32,7 +52,9 @@ npm run build      # type check, then a production build; a type error fails the
 - `src/data/mockData.ts` — the mock customers, fees, people and requests, typed against the
   contract.
 - `src/state/` — the request in progress (`draft.ts`) and the app's state (`RefundContext.tsx`).
-- `src/components/` — the screens and the shared components they're built from.
+- `src/ui/` — the component library: every component that carries a design decision, with
+  its rule. `/ui` shows them all in development (see "Component library" in DESIGN.md).
+- `src/components/` — the screens, built from `src/ui` and Mantine.
 - `src/lib/` — pure helpers: formatting, selectors over the draft and requests, exports.
 
 Sample customer IDs for the search: `C-104822`, `C-220917`, `C-301550` (click one under the

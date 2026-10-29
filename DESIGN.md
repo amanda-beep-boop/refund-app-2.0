@@ -15,6 +15,35 @@ the app stays consistent. For what the app does and how to run it, see the [READ
 - Light blue (`brand.0`) means one thing only: a checked row, in any table.
 - Amber and red mean something is wrong, never just "not filled in yet."
 
+## Component library
+
+Everything that carries a design decision comes from `src/ui`: one concept per file, each
+opening with what the component is for, when not to use it, the rule it enforces and an
+example. Layout primitives (`Group`, `Stack`, `Paper`, `Table`, inputs, buttons) come from
+Mantine, which `src/theme.ts` styles to match, so a plain `<Paper>` is already a card.
+
+While `npm run dev` is running, `/ui` shows every component in each of its states. It never
+ships.
+
+| When you need… | Use | Not |
+| --- | --- | --- |
+| A request's status | `StatusBadge` | A badge, pill or colored text of your own |
+| A flag about a piece of data | `Annotation` (`RemitterSourceAnnotation`, `LumpSumAnnotation`, `IncompleteLabel`) | An alert, a badge |
+| An identifier (customer, fee, request ID) | `Mono` | Monospace styling by hand |
+| A dollar amount | `Amount` (integer cents) | Formatting money anywhere else |
+| A label above a value | `Field` inside a `<dl>` | A label and value as loose text |
+| A label above a group of controls | `FieldGroup` (`heading` for a main decision) | Mantine `Fieldset` |
+| Who the customer is | `CustomerSummary` | The name and ID laid out by hand |
+| Why a primary button is disabled | `DisabledHint` | A tooltip, a disabled button alone |
+| Who E-Note notified | `NotificationList` | A table |
+| The title of a page or step | `PageHeader` | A `Title` of your own |
+| The top of a card | `CardHeader` | A `Title` and `Text` of your own |
+| An icon | `Icons` (`Chevron`, `LockIcon`, …) | An icon library |
+| A card | Mantine `Paper` | Styling a border and radius by hand |
+
+Library components take props only and never read app state; components that do (such as
+the draft's Discard button) live in `src/components`.
+
 ## Page patterns
 
 - **Customer summary:** the customer's full name as a heading with the customer ID beside it

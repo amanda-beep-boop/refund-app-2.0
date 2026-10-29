@@ -5,12 +5,14 @@ import HomePage from './components/HomePage';
 import FlowPage, { STEP_TITLES } from './components/FlowPage';
 import ConfirmationPage from './components/ConfirmationPage';
 import ProfileMenu from './components/ProfileMenu';
+import UiCatalog from './components/UiCatalog';
 
 const APP_NAME = 'Fee Refund Requests';
 
 export default function App() {
   const { view, step, setView, saveAndExit } = useRefund();
   const firstRender = useRef(true);
+  const catalog = import.meta.env.DEV && window.location.pathname === '/ui';
 
   // A view or step change replaces the page content, so retitle the document and move focus
   // to the new heading. Screen readers then announce where the user landed.
@@ -59,9 +61,11 @@ export default function App() {
         </Container>
       </Box>
       <Container component="main" id="main-content" tabIndex={-1} size={1120} py="xl" style={{ outline: 'none' }}>
-        {view === 'home' && <HomePage />}
-        {view === 'flow' && <FlowPage />}
-        {view === 'confirm' && <ConfirmationPage />}
+        {/* The component catalog, at /ui in development builds only (see UiCatalog). */}
+        {catalog && <UiCatalog />}
+        {!catalog && view === 'home' && <HomePage />}
+        {!catalog && view === 'flow' && <FlowPage />}
+        {!catalog && view === 'confirm' && <ConfirmationPage />}
       </Container>
     </>
   );
