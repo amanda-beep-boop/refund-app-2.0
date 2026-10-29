@@ -60,16 +60,22 @@ shows the most fees already in a request (approved, under review, submitted, par
 
 ### Design system notes
 
-- One secondary gray (`c="dimmed"`) for labels, details, hints and table headers.
+- One secondary gray (`c="dimmed"`) for labels, details, hints, table headers and disabled
+  button text (so a disabled action stays readable).
+- Colors live as semantic tokens in `src/theme.js` (`--surface-*`, `--border-*`, `--text-*`);
+  components reference the token, never a hex value.
 - A filled pill (`StatusBadge`) is reserved for workflow status. Flags about data use
   `Annotation`: an icon plus text with no fill, so they can't be mistaken for buttons
   (neutral gray, or amber for anything the analyst should check).
-- Surfaces: gray canvas, white bordered cards, gray inset for table headers and nested rows.
+- Surfaces: dark blue nav bar, near-white canvas, white cards with gray borders, gray inset for
+  table headers and nested rows.
   Light blue (`brand.0`) means one thing only: a checked row, in any table.
 - Amber and red mean something is wrong, never just "not filled in yet." Required fields that
   haven't been started stay neutral; the gray "To continue: …" hint by a disabled button lists
   what's left.
 - A row that can't be selected shows a lock icon, not a disabled checkbox.
+- Links inside a sentence or gray text are always underlined (`underline="always"`); links that
+  stand alone (nav, a table cell, a link under its own heading) underline on hover.
 
 ## Accessibility testing (Section 508 / WCAG 2.0 AA)
 

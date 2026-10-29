@@ -102,7 +102,8 @@ export default function Step1SelectFees() {
           {prior && (
             <Box mt={4}>
               {/* One span: Annotation spaces its children apart, which would put a gap before the
-                  parenthesis. */}
+                  parenthesis. The link is underlined because color alone doesn't set it apart
+                  from the gray text around it (WCAG 1.4.1). */}
               <Annotation>
                 <span>
                   {prior.status === 'approved' ? 'Refunded in' : 'In request'}{' '}
@@ -111,6 +112,7 @@ export default function Step1SelectFees() {
                     type="button"
                     ff="monospace"
                     fz={13}
+                    underline="always"
                     onClick={() => setOpenId(prior.id)}
                   >
                     {prior.id}

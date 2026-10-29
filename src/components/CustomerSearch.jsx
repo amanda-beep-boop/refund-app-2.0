@@ -66,7 +66,15 @@ export default function CustomerSearch() {
         {SAMPLE_IDS.map((id, i) => (
           <span key={id}>
             {i > 0 && ', '}
-            <Anchor component="button" type="button" ff="monospace" fz={13} onClick={() => trySample(id)}>
+            {/* Underlined: inside gray text, color alone doesn't mark it as a link (WCAG 1.4.1). */}
+            <Anchor
+              component="button"
+              type="button"
+              ff="monospace"
+              fz={13}
+              underline="always"
+              onClick={() => trySample(id)}
+            >
               {id}
             </Anchor>
           </span>

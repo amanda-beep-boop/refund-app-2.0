@@ -4,20 +4,28 @@ import { alpha, createTheme, DEFAULT_THEME, ScrollArea } from '@mantine/core';
 // white, the canvas and inset surfaces, and brand.0.
 // One secondary gray for labels, details, hints, table headers and placeholders. It is Mantine's
 // "dimmed" color: use c="dimmed". (A second, near-identical gray was merged into it.)
+// Disabled text uses the same gray, not Mantine's gray.5 (about 2:1), so a disabled control's
+// label stays readable at 4.5:1 on white, the canvas and the disabled button fill.
 const TEXT = {
   secondary: '#4F5966',
+  disabled: '#4F5966',
+  nav: DEFAULT_THEME.white,
 };
 // Surface levels: page canvas < white cards (Mantine's body color) > recessed inset areas
 // (toolbars, table headers, nested rows). Every text color above stays at 4.5:1 on both.
+// The nav bar is dark, with white text (about 13:1).
 const SURFACE = {
-  canvas: '#F3F5F7',
+  canvas: '#FCFCFC',
   inset: '#EEF1F4',
+  nav: '#122E51',
+  disabled: '#E3E7EB',
 };
-// Subtle borders divide sections within a card; strong borders mark structure (nested-row
-// rules). Warning is at least 3:1 (WCAG 1.4.11) on white and the canvas, unlike yellow.6.
+// Subtle borders outline cards and divide sections within them; strong borders mark structure
+// (nested-row rules, a second row group), so they stay a step darker than subtle. Warning is at
+// least 3:1 (WCAG 1.4.11) on white and the canvas, unlike yellow.6.
 const BORDER = {
-  subtle: DEFAULT_THEME.colors.gray[3],
-  strong: DEFAULT_THEME.colors.gray[4],
+  subtle: DEFAULT_THEME.colors.gray[4],
+  strong: DEFAULT_THEME.colors.gray[5],
   warning: '#C77700',
 };
 // Mantine's shade-9 green and yellow text are under 4.5:1 on their light backgrounds.
@@ -81,8 +89,12 @@ export const cssVariablesResolver = (t) => {
     '--mantine-color-brand-light-hover': t.colors.brand[1],
     '--mantine-color-dimmed': TEXT.secondary,
     '--mantine-color-placeholder': TEXT.secondary,
+    '--text-disabled': TEXT.disabled,
+    '--text-nav': TEXT.nav,
     '--surface-canvas': SURFACE.canvas,
     '--surface-inset': SURFACE.inset,
+    '--surface-nav': SURFACE.nav,
+    '--surface-disabled': SURFACE.disabled,
     '--border-subtle': BORDER.subtle,
     '--border-strong': BORDER.strong,
     '--border-warning': BORDER.warning,

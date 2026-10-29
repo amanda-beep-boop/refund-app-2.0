@@ -35,7 +35,7 @@ export default function App() {
       <a className="skip-link" href="#main-content">
         Skip to main content
       </a>
-      <Box component="header" bg="var(--mantine-color-body)" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+      <Box component="header" className="app-nav">
         <Container size={1120} py="sm">
           {/* The app name is the way home from every page. From a request in progress it saves
               the draft first (the "Draft saved" message says so), like "Save draft & exit". */}
@@ -47,7 +47,6 @@ export default function App() {
               else setView('home');
             }}
             aria-current={view === 'home' ? 'page' : undefined}
-            c="dark"
             fw={600}
             underline="hover"
           >

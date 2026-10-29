@@ -18,16 +18,52 @@ body {
   color: inherit;
 }
 
+/* Mantine sets each component's border color on the component itself, so the root token alone
+   doesn't reach it. Point cards, tables and dividers at the app's subtle border. `:root` raises
+   specificity above Mantine's color-scheme selectors. */
+:root .mantine-Paper-root,
+:root .mantine-Card-root {
+  --paper-border-color: var(--border-subtle);
+}
+
+:root .mantine-Table-table {
+  --table-border-color: var(--border-subtle);
+}
+
+:root .mantine-Divider-root {
+  --divider-color: var(--border-subtle);
+}
+
+/* The nav bar: white text on dark blue. Links stay white on hover (the underline shows it), and
+   the focus ring turns white so it keeps 3:1 against the bar (WCAG 2.4.7, 1.4.11). */
+.app-nav {
+  background-color: var(--surface-nav);
+  color: var(--text-nav);
+}
+
+.app-nav .mantine-Anchor-root,
+.app-nav .mantine-Anchor-root:hover {
+  color: var(--text-nav);
+}
+
+.app-nav :focus-visible {
+  outline-color: var(--text-nav);
+}
+
 /* Primary links darken on hover. */
 .mantine-Anchor-root:hover {
   color: var(--mantine-color-brand-7);
 }
 
 /* Disabled buttons stay readable, so the analyst can still find the next action. Mantine's
-   default is pale enough to read as missing; the "To continue" hint explains why it's disabled. */
+   default gray is pale enough to read as missing; the "To continue" hint explains why it's
+   disabled. */
+.mantine-Button-root:disabled:not([data-loading]) {
+  color: var(--text-disabled);
+}
+
 .mantine-Button-root:disabled:not([data-variant='subtle']):not([data-loading]) {
-  background-color: #e3e7eb;
-  color: var(--mantine-color-dimmed);
+  background-color: var(--surface-disabled);
 }
 
 /* Disabled subtle buttons stay borderless instead of turning into a gray block. */
