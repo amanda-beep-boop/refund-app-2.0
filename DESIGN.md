@@ -5,7 +5,7 @@ the app stays consistent. For what the app does and how to run it, see the [READ
 
 ## Color and surfaces
 
-- Colors live as semantic tokens in `src/theme.js` (`--surface-*`, `--border-*`, `--text-*`).
+- Colors live as semantic tokens in `src/theme.ts` (`--surface-*`, `--border-*`, `--text-*`).
   Components reference a token, never a hex value. Where a Mantine color matches, the token
   points to it.
 - Surfaces: dark blue nav bar, near-white canvas, white cards with gray borders, gray inset for
@@ -146,8 +146,8 @@ in the record sent to the OCFO must match the source, so the UI never rewrites d
   justification definition as they were when it was certified. Later edits to the source
   don't rewrite past requests.
 
-In the POC, controlled values live in `src/data/mockData.js` (fees, justifications) and
-`src/theme.js` (statuses).
+In the POC, controlled values live in `src/data/mockData.ts` (fees, justifications) and
+`src/theme.ts` (statuses).
 
 ## Accessibility (Section 508 / WCAG 2.0 AA)
 
@@ -168,7 +168,7 @@ Check each of these in Chrome, Firefox, Edge and Safari, and with NVDA (Windows)
   content. Escape closes the modal and focus returns to the request ID you opened.
 - **Every overlay closes on Escape** and returns focus to whatever opened it: the request
   modal, the "Discard This Draft?" confirmation (the draft is kept), and the Download menu on
-  the history table. This is set app-wide in `theme.js`, so new modals and menus inherit it.
+  the history table. This is set app-wide in `src/theme.ts`, so new modals and menus inherit it.
 - **"Read the note in Activity":** activating it scrolls to the OCFO note and moves focus there,
   with a visible outline.
 - **Screen reader structure:** the close button is announced as "Close request RR-…". The

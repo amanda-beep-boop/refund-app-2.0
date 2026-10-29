@@ -133,7 +133,7 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-/* Field lists are native <dl>s (see Field in shared.jsx); drop the browser's default indents. */
+/* Field lists are native <dl>s (see Field in src/ui/Field.tsx); drop the browser's default indents. */
 dl,
 dd {
   margin: 0;

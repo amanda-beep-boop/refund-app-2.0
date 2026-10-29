@@ -120,7 +120,7 @@ export const cssVariablesResolver: CSSVariablesResolver = (t) => {
   Object.entries(STATUS_TEXT).forEach(([name, color]) => {
     light[`--mantine-color-${name}-light-color`] = color;
   });
-  // Light only: the app has no dark mode (main.jsx forces the light scheme).
+  // Light only: the app has no dark mode (main.tsx forces the light scheme).
   return { variables: {}, light, dark: {} };
 };
 

@@ -5,8 +5,9 @@ customer account, select fees eligible for refund, confirm amounts and remitters
 submit the request to the Office of the Chief Financial Officer (OCFO) for review.
 
 This POC was produced by design to communicate the intended flow and interaction detail to
-the dev team and the business. It runs entirely on mock data (`src/data/mockData.js`) — no
-backend, no auth. Anything the backend would own is marked in code comments.
+the dev team and the business. It runs entirely on mock data (`src/data/mockData.ts`) with a
+stand-in for sign-in. "What you replace" below lists every place that changes when it is
+connected to real services.
 
 ## Stack
 
@@ -27,6 +28,18 @@ npm run build      # the checks, then a production build; a failed check fails t
 Calls to services return promises with no artificial delay. To see the loading and error
 states while developing, add `?latency=1500` (every call takes 1.5 s) or `?fail=customer`,
 `?fail=requests` or `?fail=submit` to the URL; `?empty=requests` shows an office with no history.
+
+### Walking through it
+
+Sample customer IDs for the search: `C-104822`, `C-220917`, `C-301550` (click one under the
+search field to look it up). `C-104822` is the richest walkthrough: a lump-sum PayPal fee, a
+fee paid by money order (no remitter on file, so it's entered by hand and refunded by check),
+and partial refunds. `C-220917` has the most fees already in a request (approved, under review,
+submitted, partial).
+
+To walk through the Staff-to-Supervisor handoff, start a request as Jordan Ellis (Staff), save it
+on Step 3, then open the account menu at the top right and switch to Simone Hart (Supervisor)
+to resume, certify and submit it.
 
 ## What you replace
 
@@ -61,21 +74,11 @@ response to them there, and nothing in the UI changes.
 - `src/components/` — the screens, built from `src/ui` and Mantine.
 - `src/lib/` — pure helpers: formatting, selectors over the draft and requests, exports.
 
-Sample customer IDs for the search: `C-104822`, `C-220917`, `C-301550` (click one under the
-search field to look it up). `C-104822` is the richest walkthrough — it covers a lump-sum PayPal
-fee, a fee paid by money order (no remitter on file, so it's entered by hand and refunded by
-check), and partial refunds. `C-220917`
-shows the most fees already in a request (approved, under review, submitted, partial).
-
-To walk through the Staff-to-Supervisor handoff, start a request as Jordan Ellis (Staff), save it
-on Step 3, then open the account menu at the top right and switch to Simone Hart (Supervisor)
-to resume, certify and submit it.
-
 ## Roles and access
 
 Every user signs in with one of two roles. The auth system supplies the user's name, email, role
 and office; requests and the draft are scoped to that office. The POC's office name, "New York
-Office", is a placeholder for that value (`OFFICE` in `src/data/mockData.js`).
+Office", is a placeholder for that value (`OFFICE` in `src/data/mockData.ts`).
 
 | | Staff | Supervisor |
 | --- | --- | --- |
@@ -143,10 +146,12 @@ accessibility test checklist, are in [DESIGN.md](DESIGN.md).
   backend-owned so the OCFO record and the download are the same artifact.
 - Certification wording is a placeholder pending counsel. Definitions for Processing Error,
   Clock Expired and Case Rejected are pending from the business; the app shows "Definition to
-  be provided" until they're added in `src/data/mockData.js`. In production the backend should store the
+  be provided" until they're added in `src/data/mockData.ts`. In production the backend should store the
   definition with each request, as the POC does at submission.
 - Fee names are hard-coded in the mock data. In production the API should send them
   display-ready from the source (see "Data display" in [DESIGN.md](DESIGN.md)).
 - E-Note deliveries are simulated; notifications currently go out only at submission.
+- The fonts (Source Sans 3, IBM Plex Mono) load from Google Fonts in `index.html`. In production,
+  self-host them or substitute the organization's fonts; see `fontFamily` in `src/theme.ts`.
 - No real auth: two mock accounts and the demo account switch stand in for it (see "Roles and
   access"). No "returned for correction" resubmit flow yet, no pagination on the history table.

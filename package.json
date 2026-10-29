@@ -1,6 +1,9 @@
 {
   "name": "refund-app",
   "private": true,
+  "engines": {
+    "node": ">=22.6"
+  },
   "version": "0.1.0",
   "type": "module",
   "scripts": {

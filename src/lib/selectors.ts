@@ -186,8 +186,9 @@ export const draftRequest = (draft: Draft, user: Person): PendingRequest => {
 // Only a Supervisor can certify and submit to the OCFO; Staff can do every other step.
 export const canSubmit = (user: Person): boolean => user.role === 'supervisor';
 
-// Wording for a submitted request's record. Shared by the request modal and its PDF so the two
-// always say the same thing; stated literally, since the record is used for legal purposes.
+// --- Wording for a request's record -----------------------------------------------------
+// Shared by the screens and the PDF, so they always say the same thing. Stated literally, since
+// the record is used for legal purposes.
 
 // The account a fee was paid from. Services such as PayPal are their own "bank", so only the
 // account (an email address) is shown for them; a money order has no account. Numbers use
