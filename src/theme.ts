@@ -77,6 +77,11 @@ export const theme = createTheme({
       },
     },
     Menu: { defaultProps: { closeOnEscape: true, returnFocus: true } },
+    Popover: { defaultProps: { closeOnEscape: true, returnFocus: true } },
+    // Every Paper and Card is a white bordered card with the app's radius, so a plain <Paper>
+    // looks right with no props.
+    Paper: { defaultProps: { withBorder: true, radius: 'sm' } },
+    Card: { defaultProps: { withBorder: true, radius: 'sm' } },
   },
 });
 

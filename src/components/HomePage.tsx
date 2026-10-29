@@ -1,7 +1,8 @@
-import { Button, Group, Paper, Stack, Text, Title } from '@mantine/core';
+import { Button, Group, Paper, Stack, Text } from '@mantine/core';
 import { useRefund } from '../state/RefundContext';
 import { customerById } from '../data/api';
-import { Mono, DiscardDraftButton } from './shared';
+import { Mono, PageHeader } from '../ui';
+import { DiscardDraftButton } from './DiscardDraftButton';
 import CustomerSearch from './CustomerSearch';
 import HistoryTable from './HistoryTable';
 
@@ -12,16 +13,16 @@ export default function HomePage() {
 
   return (
     <Stack gap="lg">
-      <div>
-        <Title order={1} id="page-heading" tabIndex={-1}>
-          Fee Refund Requests
-        </Title>
-        <Text c="dimmed" mt={6} maw={640}>
-          Look up a customer account, select the fees eligible for refund, and submit a refund
-          request to the Office of the Chief Financial Officer (OCFO) for review. Every request from
-          the {office}, with its current status, is listed below.
-        </Text>
-      </div>
+      <PageHeader
+        title="Fee Refund Requests"
+        description={
+          <>
+            Look up a customer account, select the fees eligible for refund, and submit a refund
+            request to the Office of the Chief Financial Officer (OCFO) for review. Every request
+            from the {office}, with its current status, is listed below.
+          </>
+        }
+      />
 
       {draft && draftCustomer ? (
         // The draft belongs to the office, not to one person (one draft at a time per office), so
@@ -29,8 +30,6 @@ export default function HomePage() {
         // primary-blue accent bar (5.2:1 on white) makes it prominent without the amber that means
         // something is wrong.
         <Paper
-          withBorder
-          radius="sm"
           p="md"
           style={{ borderLeft: '4px solid var(--mantine-color-brand-6)' }}
         >

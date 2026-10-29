@@ -34,6 +34,12 @@ body {
   --divider-color: var(--border-subtle);
 }
 
+/* The theme makes every Paper a bordered card. A modal is built on Paper too, but it floats on
+   its shadow and has no border. */
+.mantine-Modal-content {
+  border: 0;
+}
+
 /* The nav bar: white text on dark blue. Links stay white on hover (the underline shows it), and
    the focus ring turns white so it keeps 3:1 against the bar (WCAG 2.4.7, 1.4.11). */
 .app-nav {

@@ -9,7 +9,6 @@ import {
   Table,
   Text,
   Textarea,
-  Title,
   VisuallyHidden,
 } from '@mantine/core';
 import type { Customer, Fee, JustificationCode } from '../types';
@@ -26,7 +25,7 @@ import {
   step2Valid,
   accountLine,
 } from '../lib/selectors';
-import { Amount, Chevron, CustomerSummary, DisabledHint, Mono } from './shared';
+import { Amount, CardHeader, Chevron, CustomerSummary, DisabledHint, Mono } from '../ui';
 import FeeCard from './FeeCard';
 
 // Everything the system pulled up, in one place: the customer, then each selected fee as paid,
@@ -34,7 +33,7 @@ import FeeCard from './FeeCard';
 // decisions, so reference and decisions don't compete.
 function PaidReference({ customer, fees }: { customer: Customer; fees: Fee[] }) {
   return (
-    <Paper withBorder radius="sm">
+    <Paper>
       <Box p="md">
         <CustomerSummary customer={customer} />
       </Box>
@@ -138,15 +137,15 @@ export default function Step2Details() {
         <FeeCard key={fee.id} fee={fee} />
       ))}
 
-      <Paper withBorder radius="sm">
-        <Group justify="space-between" p="md" wrap="wrap">
-          <Title order={2} fz="lg">
-            Reason for This Request
-          </Title>
-          <Text fz="sm" c="dimmed">
-            One justification and remark cover every fee in the request.
-          </Text>
-        </Group>
+      <Paper>
+        <CardHeader
+          title="Reason for This Request"
+          aside={
+            <Text fz="sm" c="dimmed">
+              One justification and remark cover every fee in the request.
+            </Text>
+          }
+        />
         <Stack p="md" pt={0} gap="sm">
           <Select
             label="Justification"

@@ -21,7 +21,7 @@ import { customerById } from '../data/api';
 import { STATUS_META } from '../theme';
 import { fmtDate } from '../lib/format';
 import { downloadHistoryCsv, downloadHistoryPdf, downloadHistoryDocx, type ExportRow } from '../lib/exports';
-import { StatusBadge, Mono, Amount, Chevron, LockIcon } from './shared';
+import { StatusBadge, Mono, Amount, Chevron, LockIcon } from '../ui';
 import RequestModal from './RequestModal';
 
 // A submitted request's row, or the office's draft (never exported).
@@ -145,7 +145,7 @@ export default function HistoryTable() {
     });
 
   return (
-    <Paper withBorder radius="sm">
+    <Paper>
       <div style={{ padding: 'var(--mantine-spacing-md) var(--mantine-spacing-md) var(--mantine-spacing-sm)' }}>
         <Title order={2} fz="lg">
           Previous Requests

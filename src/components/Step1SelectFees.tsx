@@ -28,7 +28,7 @@ import {
   CustomerSummary,
   DisabledHint,
   LockIcon,
-} from './shared';
+} from '../ui';
 import RequestModal from './RequestModal';
 
 const COLUMNS = 6;
@@ -168,7 +168,7 @@ export default function Step1SelectFees() {
 
   return (
     <>
-      <Paper withBorder radius="sm">
+      <Paper>
         {/* The customer heads their fees, as in Step 2's reference panel. */}
         <Box p="md">
           <CustomerSummary customer={customer} />

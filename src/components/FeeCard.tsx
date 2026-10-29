@@ -25,7 +25,7 @@ import {
   refundCents,
   refundMethodLabel,
 } from '../lib/selectors';
-import { Mono, Amount, FieldGroup, IncompleteLabel, RemitterSourceAnnotation } from './shared';
+import { Mono, Amount, FieldGroup, IncompleteLabel, RemitterSourceAnnotation } from '../ui';
 
 // One card per fee holds the two decisions for it: how much to refund, and to whom. What was
 // paid (date, payment method, line items) is shown once, in the reference panel above the cards.
@@ -76,8 +76,6 @@ export default function FeeCard({ fee }: { fee: Fee }) {
 
   return (
     <Paper
-      withBorder
-      radius="sm"
       component="section"
       aria-labelledby={`fee-${fee.id}-title`}
       style={invalid ? { borderColor: 'var(--border-warning)' } : undefined}

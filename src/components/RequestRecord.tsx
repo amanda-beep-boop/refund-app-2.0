@@ -12,7 +12,7 @@ import {
   refundMethodLabel,
   refundExtentLabel,
 } from '../lib/selectors';
-import { Mono, Amount, Field, FieldLabel, RemitterSourceAnnotation, LumpSumAnnotation } from './shared';
+import { Mono, Amount, Field, FieldLabel, RemitterSourceAnnotation, LumpSumAnnotation } from '../ui';
 
 // Everything entered at submission, as one record laid out like an invoice. The request modal
 // shows it for submitted requests; Step 3 previews it from the draft (with the certification

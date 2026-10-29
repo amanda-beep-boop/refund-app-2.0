@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Avatar, Button, Divider, Popover, Stack, Text, UnstyledButton } from '@mantine/core';
 import { useRefund } from '../state/RefundContext';
 import { DEMO_ACCOUNTS, ROLE_LABEL } from '../data/mockData';
-import { Chevron, Field, FieldLabel } from './shared';
+import { Chevron, Field, FieldLabel } from '../ui';
 
 const initials = (name: string) =>
   name

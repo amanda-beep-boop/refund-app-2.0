@@ -16,7 +16,7 @@ import type { FormEvent } from 'react';
 import type { Customer } from '../types';
 import { findCustomer, listSampleCustomerIds } from '../data/api';
 import { feeRequest } from '../lib/selectors';
-import { Mono, Chevron, CustomerSummary } from './shared';
+import { Mono, Chevron, CustomerSummary } from '../ui';
 
 const SAMPLE_IDS = listSampleCustomerIds();
 
@@ -43,7 +43,7 @@ export default function CustomerSearch() {
   };
 
   return (
-    <Paper withBorder radius="sm" p="md">
+    <Paper p="md">
       <Title order={2} fz="lg" mb="sm">
         Start a New Refund Request
       </Title>
@@ -85,7 +85,7 @@ export default function CustomerSearch() {
       {/* Announces the search outcome to screen readers. */}
       <div role="status" aria-live="polite">
         {result === null && (
-          <Paper withBorder radius="sm" p="md" mt="md" style={{ borderStyle: 'dashed' }}>
+          <Paper p="md" mt="md" style={{ borderStyle: 'dashed' }}>
             <Text>
               No account matches <Mono>{searched}</Mono>. Check the ID and try again.
             </Text>
@@ -99,7 +99,7 @@ export default function CustomerSearch() {
       </div>
 
       {result && (
-        <Card withBorder radius="sm" p="lg" mt="md">
+        <Card p="lg" mt="md">
           <Group justify="space-between" align="center" wrap="wrap">
             <Stack gap={4} style={{ flex: 1, minWidth: 260 }}>
               <CustomerSummary customer={result} order={3} />

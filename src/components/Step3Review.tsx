@@ -1,7 +1,7 @@
 import { Button, Checkbox, Group, Stack, Text, VisuallyHidden } from '@mantine/core';
 import { useActiveDraft, useRefund } from '../state/RefundContext';
 import { canSubmit, draftRequest } from '../lib/selectors';
-import { Chevron, DisabledHint, FieldLabel } from './shared';
+import { Chevron, DisabledHint, FieldLabel } from '../ui';
 import RequestRecord from './RequestRecord';
 
 // Previews the record the request will become. Certifying is the record's closing line, so the

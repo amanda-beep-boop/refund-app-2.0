@@ -4,7 +4,7 @@ import { useRefund } from '../state/RefundContext';
 import { customerById } from '../data/api';
 import { fmtDateTime } from '../lib/format';
 import { enoteTitle } from '../lib/selectors';
-import { StatusBadge, Mono, Amount, Field, FieldLabel, NotificationList } from './shared';
+import { StatusBadge, Mono, Amount, Field, FieldLabel, NotificationList, PageHeader } from '../ui';
 import RequestModal from './RequestModal';
 
 export default function ConfirmationPage() {
@@ -15,11 +15,9 @@ export default function ConfirmationPage() {
 
   return (
     <Stack gap="lg">
-      <Title order={1} id="page-heading" tabIndex={-1}>
-        Request Submitted to the OCFO
-      </Title>
+      <PageHeader title="Request Submitted to the OCFO" />
 
-      <Paper withBorder radius="sm" p="lg">
+      <Paper p="lg">
         <FieldLabel>Request ID</FieldLabel>
         <Mono fz={32} fw={500}>
           {lastSubmitted.id}
