@@ -1,0 +1,173 @@
+/* Page canvas sits behind the white cards; Paper and inputs keep --mantine-color-body. */
+body {
+  background-color: var(--surface-canvas);
+}
+
+/* Table header rows are recessed within their card, and column headers read as labels:
+   gray, like field labels. A footer row (a total) stays dark like a value. */
+.mantine-Table-thead {
+  background-color: var(--surface-inset);
+}
+
+.mantine-Table-th {
+  color: var(--mantine-color-dimmed);
+  font-weight: 600;
+}
+
+.mantine-Table-tfoot .mantine-Table-th {
+  color: inherit;
+}
+
+/* Primary links darken on hover. */
+.mantine-Anchor-root:hover {
+  color: var(--mantine-color-brand-7);
+}
+
+/* Disabled buttons stay readable, so the analyst can still find the next action. Mantine's
+   default is pale enough to read as missing; the "To continue" hint explains why it's disabled. */
+.mantine-Button-root:disabled:not([data-variant='subtle']):not([data-loading]) {
+  background-color: #e3e7eb;
+  color: var(--mantine-color-dimmed);
+}
+
+/* Disabled subtle buttons stay borderless instead of turning into a gray block. */
+.mantine-Button-root[data-variant='subtle']:disabled {
+  background-color: transparent;
+}
+
+/* A second row group in a table (e.g. fees already requested) starts with a strong rule. */
+.group-divider {
+  border-top: 2px solid var(--border-strong);
+}
+
+/* Amounts line up in columns without switching to a monospace face. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Field lists are native <dl>s (see Field in shared.jsx); drop the browser's default indents. */
+dl,
+dd {
+  margin: 0;
+}
+
+/* Fields side by side, wrapping as space runs out. */
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: var(--mantine-spacing-md);
+}
+
+/* Fields in a row sized to their content. */
+.field-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--mantine-spacing-xl);
+}
+
+/* Fields stacked one under another. */
+.field-stack {
+  display: grid;
+  gap: var(--mantine-spacing-sm);
+}
+
+/* Semantic grouping only; the legend is styled as a field label. */
+.plain-fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.plain-fieldset > legend {
+  padding: 0;
+  margin-bottom: var(--mantine-spacing-xs);
+}
+
+/* A submitted request shown as one record: header strip, sections divided by rules, and the
+   certification as a closing footer. */
+.form-record {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--mantine-radius-sm);
+  overflow: hidden;
+  background-color: var(--mantine-color-body);
+}
+
+.form-record-header {
+  padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
+  background-color: var(--surface-inset);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+/* The parties side by side, like the address blocks on an invoice. */
+.form-record-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: var(--mantine-spacing-md) var(--mantine-spacing-xl);
+  padding: var(--mantine-spacing-md);
+}
+
+.form-record-section {
+  border-top: 1px solid var(--border-subtle);
+}
+
+.form-record-pad {
+  padding: var(--mantine-spacing-md);
+}
+
+/* Inside a record the column headers read like field labels: gray on white, no fill, since the
+   record header above already carries the gray strip. */
+.form-record .mantine-Table-thead {
+  background-color: transparent;
+}
+
+/* The next section's rule closes the table, so its last row doesn't draw a second one. */
+.form-record .mantine-Table-tfoot .mantine-Table-tr {
+  border-bottom: 0;
+}
+
+.form-record-footer {
+  padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
+  background-color: var(--surface-inset);
+  border-top: 1px solid var(--border-subtle);
+}
+
+/* Notes are link targets: land below the modal's sticky header, and show where focus went. */
+.status-note {
+  scroll-margin-top: 5rem;
+}
+
+.status-note:focus-visible,
+.status-note:focus {
+  outline: 2px solid var(--mantine-color-brand-6);
+  outline-offset: 2px;
+}
+
+/* Long free text (notes, justifications) wraps at a comfortable line length. */
+.readable {
+  max-width: 72ch;
+  line-height: 1.55;
+}
+
+/* Skip link: off screen until focused. */
+.skip-link {
+  position: absolute;
+  left: var(--mantine-spacing-md);
+  top: -100px;
+  z-index: 1000;
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-md);
+  background: var(--mantine-color-body);
+  border: 2px solid var(--mantine-color-brand-6);
+  border-radius: var(--mantine-radius-sm);
+  font-weight: 600;
+}
+
+.skip-link:focus {
+  top: var(--mantine-spacing-xs);
+}
+
+/* Headings focused programmatically after a view change don't need a focus ring. */
+h1[tabindex='-1']:focus {
+  outline: none;
+}
