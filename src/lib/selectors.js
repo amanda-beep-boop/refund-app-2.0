@@ -1,4 +1,4 @@
-import { CUSTOMERS, SUBMITTER, JUSTIFICATION_DEFINITION } from '../data/mockData';
+import { CUSTOMERS, JUSTIFICATION_DEFINITION } from '../data/mockData';
 import { parseCents, dollars, fmt, methodLabel } from './format';
 
 // Pure helpers over the draft shape:
@@ -103,8 +103,9 @@ export const remitterNotes = (fees, getSource, getRecord) =>
 
 // The request a draft would become, minus what only exists once it's sent (ID, timestamps,
 // timeline, notifications). Submission builds on this, and Step 3 previews it, so what the
-// analyst certifies is exactly what gets recorded.
-export const draftRequest = (draft) => {
+// Supervisor certifies is exactly what gets recorded. The requester is whoever started the draft;
+// the submitter is the signed-in user who certifies it.
+export const draftRequest = (draft, user) => {
   const customer = CUSTOMERS[draft.customer];
   const fees = customer.fees
     .filter((f) => draft.selected.has(f.id))
@@ -129,7 +130,8 @@ export const draftRequest = (draft) => {
     });
   return {
     customer: customer.id,
-    submittedBy: SUBMITTER,
+    requestedBy: draft.createdBy,
+    submittedBy: user,
     justification: {
       code: draft.justification.code,
       definition: JUSTIFICATION_DEFINITION[draft.justification.code],
@@ -139,6 +141,9 @@ export const draftRequest = (draft) => {
     total: fees.reduce((s, f) => s + f.refund, 0),
   };
 };
+
+// Only a Supervisor can certify and submit to the OCFO; Staff can do every other step.
+export const canSubmit = (user) => user.role === 'supervisor';
 
 // Wording for a submitted request's record. Shared by the request modal and its PDF so the two
 // always say the same thing; stated literally, since the record is used for legal purposes.

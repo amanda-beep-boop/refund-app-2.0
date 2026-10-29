@@ -50,12 +50,34 @@ body {
   outline-color: var(--text-nav);
 }
 
+/* Account button: initials and name, white on the bar. The initials are navy on white (13.7:1). */
+.profile-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mantine-spacing-xs);
+  min-height: 36px;
+  padding: 0 var(--mantine-spacing-xs);
+  border-radius: var(--mantine-radius-sm);
+  color: var(--text-nav);
+}
+
+.profile-trigger:hover,
+.profile-trigger[aria-expanded='true'] {
+  background-color: rgb(255 255 255 / 0.12);
+}
+
+.profile-avatar .mantine-Avatar-placeholder {
+  background-color: var(--text-nav);
+  color: var(--surface-nav);
+  font-size: var(--mantine-font-size-xs);
+}
+
 /* Primary links darken on hover. */
 .mantine-Anchor-root:hover {
   color: var(--mantine-color-brand-7);
 }
 
-/* Disabled buttons stay readable, so the analyst can still find the next action. Mantine's
+/* Disabled buttons stay readable, so the user can still find the next action. Mantine's
    default gray is pale enough to read as missing; the "To continue" hint explains why it's
    disabled. */
 .mantine-Button-root:disabled:not([data-loading]) {

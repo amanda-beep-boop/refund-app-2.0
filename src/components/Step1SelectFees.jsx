@@ -41,7 +41,7 @@ export default function Step1SelectFees() {
     .reduce((s, f) => s + f.cents, 0);
 
   // Fees already in a request can't be requested again. They're grouped after the selectable
-  // fees, read-only, so the analyst knows about them without having to read past them.
+  // fees, read-only, so the user knows about them without having to read past them.
   const withPrior = customer.fees.map((fee) => ({ fee, prior: feeRequest(fee.id, requests) }));
   const available = withPrior.filter((r) => !r.prior);
   const locked = withPrior.filter((r) => r.prior);

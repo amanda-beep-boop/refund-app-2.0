@@ -36,7 +36,7 @@ export default function FeeCard({ fee }) {
   const showForm = remitter.editing || (source === 'manual' && !remitter.name.trim());
 
   // Warnings appear only for a real problem: an amount that was entered and is wrong, or a
-  // remitter field the analyst has left empty. A card that simply hasn't been filled in yet
+  // remitter field the user has left empty. A card that simply hasn't been filled in yet
   // stays neutral; the hint by the Continue button lists what's still needed.
   const amountProblem = partial && amountEntered(fee, draft) && !amountOk;
   const nameError =

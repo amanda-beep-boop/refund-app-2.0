@@ -200,7 +200,7 @@ export function downloadRequestPdf(request) {
     body: [
       [
         `${c.name}\nCustomer ID ${c.id}\n${c.team}, ${c.position}`,
-        `${request.submittedBy.name}\n${request.submittedBy.email}`,
+        `${request.requestedBy.name}\n${request.requestedBy.email}`,
       ],
     ],
   });

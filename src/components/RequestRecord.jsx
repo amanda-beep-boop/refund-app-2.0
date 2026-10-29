@@ -12,7 +12,7 @@ import { Mono, Amount, Field, FieldLabel, RemitterSourceAnnotation, LumpSumAnnot
 
 // Everything entered at submission, as one record laid out like an invoice. The request modal
 // shows it for submitted requests; Step 3 previews it from the draft (with the certification
-// checkbox as its footer), so what the analyst certifies is exactly what gets recorded.
+// checkbox as its footer), so what the Supervisor certifies is exactly what gets recorded.
 // Type rules: section headings 16/600; labels 14/600 gray; values 14/400 dark; details 14/400
 // in the same gray; weight otherwise only on the total.
 export default function RequestRecord({
@@ -52,9 +52,9 @@ export default function RequestRecord({
           </Text>
         </Field>
         <Field label="Requested by">
-          <Text inherit>{request.submittedBy.name}</Text>
+          <Text inherit>{request.requestedBy.name}</Text>
           <Text inherit c="dimmed">
-            {request.submittedBy.email}
+            {request.requestedBy.email}
           </Text>
         </Field>
       </dl>

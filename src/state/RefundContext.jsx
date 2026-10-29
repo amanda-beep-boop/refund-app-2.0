@@ -1,6 +1,6 @@
 import { createContext, useContext, useMemo, useState } from 'react';
 import { notifications } from '@mantine/notifications';
-import { SEED_REQUESTS, buildNotifications } from '../data/mockData';
+import { SEED_REQUESTS, DEMO_ACCOUNTS, ROLE_LABEL, buildNotifications } from '../data/mockData';
 import { nowISO } from '../lib/format';
 import {
   draftCustomer,
@@ -8,15 +8,21 @@ import {
   initialFeeState,
   draftTotal,
   draftRequest,
+  canSubmit,
 } from '../lib/selectors';
 
 const RefundContext = createContext(null);
 
 export function RefundProvider({ children }) {
+  // In production the auth system supplies the signed-in user (name, email, role, office).
+  const [currentUser, setCurrentUser] = useState(DEMO_ACCOUNTS[0]);
   const [requests, setRequests] = useState(SEED_REQUESTS);
   const [nextSeq, setNextSeq] = useState(206);
   const [view, setView] = useState('home'); // 'home' | 'flow' | 'confirm'
   const [step, setStep] = useState(1);
+  // One draft at a time per office (a business rule): it must be submitted or discarded before
+  // anyone in the office starts another request. Staff hand a finished draft to a Supervisor by
+  // saving it; the Supervisor resumes it, can edit anything, then certifies and submits.
   const [draft, setDraft] = useState(null);
   const [lastSubmittedId, setLastSubmittedId] = useState(null);
   const [sending, setSending] = useState(false);
@@ -34,6 +40,7 @@ export function RefundProvider({ children }) {
       remark: '',
       certified: false,
       startedAt: nowISO(),
+      createdBy: currentUser,
     });
     setStep(1);
     setView('flow');
@@ -48,7 +55,26 @@ export function RefundProvider({ children }) {
 
   const saveAndExit = () => {
     setView('home');
-    notifications.show({ message: 'Draft saved', color: 'brand' });
+    notifications.show({
+      message:
+        view === 'flow' && step === 3 && !canSubmit(currentUser)
+          ? 'Draft saved. A Supervisor can now resume it to certify and submit.'
+          : 'Draft saved',
+      color: 'brand',
+    });
+  };
+
+  // Demo only: stands in for signing out and back in as someone else. The office's draft is kept,
+  // and like a fresh sign-in the user lands on the home page.
+  const signInAs = (user) => {
+    setCurrentUser(user);
+    // Certifying is the signed-in person's own statement, so it never carries over to someone else.
+    setDraft((d) => (d ? { ...d, certified: false } : d));
+    setView('home');
+    notifications.show({
+      message: `Signed in as ${user.name} (${ROLE_LABEL[user.role]})`,
+      color: 'brand',
+    });
   };
 
   const resumeDraft = () => setView('flow');
@@ -104,7 +130,7 @@ export function RefundProvider({ children }) {
   const setRemark = (remark) => setDraft((d) => ({ ...d, remark }));
 
   const submit = () => {
-    if (!draft) return;
+    if (!draft || !canSubmit(currentUser)) return;
     const d = draft;
     setSending(true);
     // Simulated latency of the digital submission to the OCFO.
@@ -112,7 +138,7 @@ export function RefundProvider({ children }) {
       {
         const at = nowISO();
         const id = `RR-2026-${String(nextSeq).padStart(4, '0')}`;
-        const base = draftRequest(d);
+        const base = draftRequest(d, currentUser);
         const request = {
           ...base,
           id,
@@ -121,7 +147,7 @@ export function RefundProvider({ children }) {
           statusDate: at.slice(0, 10),
           certifiedAt: at,
           timeline: [{ status: 'submitted', at }],
-          notifications: buildNotifications(at),
+          notifications: buildNotifications(at, currentUser, d.createdBy),
         };
         setRequests((rs) => [...rs, request]);
         setNextSeq((n) => n + 1);
@@ -136,6 +162,7 @@ export function RefundProvider({ children }) {
 
   const value = useMemo(
     () => ({
+      currentUser,
       requests,
       view,
       step,
@@ -151,6 +178,7 @@ export function RefundProvider({ children }) {
       discardDraft,
       saveAndExit,
       resumeDraft,
+      signInAs,
       toggleFee,
       toggleCollapsed,
       setAmount,
@@ -161,7 +189,7 @@ export function RefundProvider({ children }) {
       setCertified: (certified) => patchDraft({ certified }),
       submit,
     }),
-    [requests, view, step, draft, sending, lastSubmittedId, nextSeq]
+    [currentUser, requests, view, step, draft, sending, lastSubmittedId, nextSeq]
   );
 
   return <RefundContext.Provider value={value}>{children}</RefundContext.Provider>;

@@ -26,11 +26,39 @@ search field to look it up). `C-104822` is the richest walkthrough — it covers
 fee, a fee with no remitter on file (manual entry required), and partial refunds. `C-220917`
 shows the most fees already in a request (approved, under review, submitted, partial).
 
+To walk through the Staff-to-Supervisor handoff, start a request as Jordan Ellis (Staff), save it
+on Step 3, then open the account menu at the top right and switch to Simone Hart (Supervisor)
+to resume, certify and submit it.
+
+## Roles and access
+
+Every user signs in with one of two roles. The auth system supplies the user's name, email, role
+and office; requests and the draft are scoped to that office. The POC's office name, "New York
+Office", is a placeholder for that value (`OFFICE` in `src/data/mockData.js`).
+
+| | Staff | Supervisor |
+| --- | --- | --- |
+| Start a request, select fees, confirm details, review | Yes | Yes |
+| Resume and edit the office's draft | Yes | Yes |
+| Certify and submit to the OCFO | No | Yes |
+
+- **One draft at a time per office** (a business rule). It must be submitted or discarded before
+  anyone in the office can start another request.
+- **The draft is the handoff.** Staff complete Steps 1–3 and save the draft; on Step 3 they see
+  that a Supervisor needs to certify and submit it. A Supervisor resumes it, can edit anything,
+  then certifies and submits.
+- **The record keeps both people.** "Requested by" is whoever started the draft; "Certified and
+  submitted by" is the Supervisor. When a Supervisor does everything, both are the same person.
+- **Account menu:** the button at the top right shows the signed-in user's name, email, role and
+  office. Its "switch account" option is for the demo only; in production, replace it with the
+  account actions the auth system provides (typically Sign Out).
+
 ## What the flow demonstrates
 
-1. **Landing page** — every request submitted by the analyst's office, with who requested
+1. **Landing page** — every request submitted by the user's office, with who requested
    it (sort, filter, select, download as CSV/Word/PDF). Newest first by default, with a draft
-   in progress at the top. "Start a New Refund Request" sits above the table. One draft at a time.
+   in progress at the top. "Start a New Refund Request" sits above the table. One draft at a
+   time per office; while there is one, a banner in its place says who started it.
    Request IDs open the request record.
 2. **Select Fees** — every paid fee, with checkbox selection; lump-sum payments (PayPal,
    Splitwise) expanded by default, selectable only as a whole. Fees already in a request
@@ -46,9 +74,10 @@ shows the most fees already in a request (approved, under review, submitted, par
    (Processing Error, Clock Expired, Case Rejected or Other) and a required Requester Remark: a
    short summary of what is being refunded and why.
 4. **Review & Submit** — a preview of the exact record the OCFO will receive, with the legal
-   certification (placeholder wording) as its closing line; simulated digital submission.
-5. **Confirmation** — permanent request ID, the E-Note emails sent (to the submitter and the
-   OCFO; remitters are never notified), and the new row in the history table as "Submitted
+   certification (placeholder wording) as its closing line; simulated digital submission. Only a
+   Supervisor can certify and submit; Staff see why and save the draft instead.
+5. **Confirmation** — permanent request ID, the E-Note emails sent (to the submitter, the
+   requester when someone else prepared the request, and the OCFO; remitters are never notified), and the new row in the history table as "Submitted
    to OCFO".
 6. **Request record** — the modal behind each request ID is a living record. On top, a
    snapshot of what was submitted, laid out like an invoice: customer and requester, the
@@ -74,5 +103,5 @@ accessibility test checklist, are in [DESIGN.md](DESIGN.md).
 - Fee names are hard-coded in the mock data. In production the API should send them
   display-ready from the source (see "Data display" in [DESIGN.md](DESIGN.md)).
 - E-Note deliveries are simulated; notifications currently go out only at submission.
-- No auth (the real page sits behind existing credentials), no "returned for correction"
-  resubmit flow yet, no pagination on the history table.
+- No real auth: two mock accounts and the demo account switch stand in for it (see "Roles and
+  access"). No "returned for correction" resubmit flow yet, no pagination on the history table.

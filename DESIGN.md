@@ -19,7 +19,7 @@ the app stays consistent. For what the app does and how to run it, see the [READ
 
 - A filled pill (`StatusBadge`) is reserved for workflow status.
 - Flags about data use `Annotation`: an icon plus text with no fill, so they can't be mistaken
-  for buttons. Neutral gray states a fact; amber marks something the analyst should check.
+  for buttons. Neutral gray states a fact; amber marks something the user should check.
 
 ## Forms and validation
 
@@ -36,6 +36,17 @@ the app stays consistent. For what the app does and how to run it, see the [READ
   lowercase unless first ("Reason for This Request", "Back to Fees").
 - **Sentence case** for field labels, hints and body text.
 - A status named mid-sentence is lowercase except for acronyms ("under OCFO review").
+
+### Voice
+
+- **Second person** for the user's own actions in the request flow ("in your own words", "only if
+  you know the payment record is wrong"). The certification statement stays in first person,
+  because the person certifying makes it.
+- **Office level** for anything shared by the office: the request list and the draft. A draft
+  belongs to the office, not one person, so name who started it rather than saying "your draft"
+  ("The New York Office has a draft in progress …, started by Jordan Ellis").
+- Don't assume the current user created what they're looking at: a Supervisor may be submitting
+  or discarding a draft Staff started ("this request", not "your request").
 
 ## Links
 

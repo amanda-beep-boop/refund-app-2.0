@@ -15,7 +15,7 @@ export default function RequestModal({ requestId, onClose }) {
   const request = requests.find((r) => r.id === requestId);
   if (!request) return <Modal opened={false} onClose={onClose} />;
 
-  // A note on the current status (e.g. why it was returned) is what the analyst has to act on.
+  // A note on the current status (e.g. why it was returned) is what the user has to act on.
   // It lives in Activity; a pinned notice at the top links to it.
   const latest = request.timeline[request.timeline.length - 1];
   const leadNote = latest.note ? latest : null;

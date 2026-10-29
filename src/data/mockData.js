@@ -4,16 +4,24 @@
 // refund-request service. Amounts are integer cents.
 // ---------------------------------------------------------------------------
 
-// The signed-in user. The history table lists every request from their office, so some
-// seed requests are submitted by colleagues.
-export const SUBMITTER = { name: 'Jordan Ellis', email: 'jordan.ellis@agency.example' };
-const COLLEAGUES = {
-  okafor: { name: 'Danielle Okafor', email: 'danielle.okafor@agency.example' },
-  lindqvist: { name: 'Marcus Lindqvist', email: 'marcus.lindqvist@agency.example' },
+// People in the signed-in user's office. In production the auth system supplies the signed-in
+// user's name, email, role and office; requests and the draft are scoped to that office.
+// Staff can do every step except certify and submit; only a Supervisor can certify and submit.
+// Placeholder: the office name comes from the auth service.
+export const OFFICE = 'New York Office';
+export const ROLE_LABEL = { staff: 'Staff', supervisor: 'Supervisor' };
+const person = (name, email, role) => ({ name, email, role, office: OFFICE });
+export const PEOPLE = {
+  ellis: person('Jordan Ellis', 'jordan.ellis@agency.example', 'staff'),
+  hart: person('Simone Hart', 'simone.hart@agency.example', 'supervisor'),
+  okafor: person('Danielle Okafor', 'danielle.okafor@agency.example', 'supervisor'),
+  lindqvist: person('Marcus Lindqvist', 'marcus.lindqvist@agency.example', 'staff'),
 };
+// The two accounts the demo can sign in as (see ProfileMenu). The first is signed in at start.
+export const DEMO_ACCOUNTS = [PEOPLE.ellis, PEOPLE.hart];
 export const OCFO = { name: 'OCFO Refund Review', email: 'refunds@ocfo.example' };
 
-// Reasons an analyst can give for a refund. Definitions for the first three are pending from the
+// Reasons staff can give for a refund. Definitions for the first three are pending from the
 // business (null until then). A request stores the definition in force when it was certified, so
 // later edits here don't rewrite old records.
 export const JUSTIFICATIONS = [
@@ -40,7 +48,7 @@ export const JUSTIFICATION_DEFINITION = Object.fromEntries(
 // record has none). remitter.method: "original" = refund to the instrument the
 // fee was paid with; "check" = paper check to the address.
 // Every paid fee is listed. Fees already in a request (see SEED_REQUESTS) show in Step 1 as
-// read-only, so the analyst can see they were requested but can't request them again.
+// read-only, so the user can see they were requested but can't request them again.
 export const CUSTOMERS = {
   'C-104822': {
     id: 'C-104822',
@@ -283,10 +291,14 @@ export const CUSTOMERS = {
 
 const R = (name, address, method) => ({ name, address, method: method || 'original' });
 
-// E-Note notifies the submitter and the OCFO when a request is submitted. Remitters are never
-// notified: they don't interact with this application.
-export const buildNotifications = (at, submitter = SUBMITTER) => [
+// E-Note notifies the submitter (the Supervisor who certified), the requester when someone else
+// prepared the request, and the OCFO. Remitters are never notified: they don't interact with
+// this application.
+export const buildNotifications = (at, submitter, requester = submitter) => [
   { role: 'Submitter', name: submitter.name, to: submitter.email, at },
+  ...(requester.email !== submitter.email
+    ? [{ role: 'Requester', name: requester.name, to: requester.email, at }]
+    : []),
   { role: 'OCFO', name: OCFO.name, to: OCFO.email, at },
 ];
 
@@ -297,7 +309,8 @@ export const SEED_REQUESTS = [
     submittedAt: '2026-06-18T10:14:00',
     status: 'approved',
     statusDate: '2026-07-09',
-    submittedBy: SUBMITTER,
+    requestedBy: PEOPLE.ellis,
+    submittedBy: PEOPLE.hart,
     certifiedAt: '2026-06-18T10:14:00',
     justification: { code: 'rejected' },
     remark:
@@ -328,7 +341,7 @@ export const SEED_REQUESTS = [
       { status: 'review', at: '2026-06-20T09:30:00' },
       { status: 'approved', at: '2026-07-09T15:02:00' },
     ],
-    notifications: buildNotifications('2026-06-18T10:14:00'),
+    notifications: buildNotifications('2026-06-18T10:14:00', PEOPLE.hart, PEOPLE.ellis),
   },
   {
     id: 'RR-2026-0151',
@@ -336,7 +349,8 @@ export const SEED_REQUESTS = [
     submittedAt: '2026-07-01T15:40:00',
     status: 'approved',
     statusDate: '2026-07-22',
-    submittedBy: COLLEAGUES.okafor,
+    requestedBy: PEOPLE.okafor,
+    submittedBy: PEOPLE.okafor,
     certifiedAt: '2026-07-01T15:40:00',
     justification: { code: 'processing' },
     remark:
@@ -367,7 +381,7 @@ export const SEED_REQUESTS = [
       { status: 'review', at: '2026-07-03T11:12:00' },
       { status: 'approved', at: '2026-07-22T16:45:00' },
     ],
-    notifications: buildNotifications('2026-07-01T15:40:00', COLLEAGUES.okafor),
+    notifications: buildNotifications('2026-07-01T15:40:00', PEOPLE.okafor, PEOPLE.okafor),
   },
   {
     id: 'RR-2026-0169',
@@ -375,7 +389,8 @@ export const SEED_REQUESTS = [
     submittedAt: '2026-07-24T09:02:00',
     status: 'review',
     statusDate: '2026-07-28',
-    submittedBy: SUBMITTER,
+    requestedBy: PEOPLE.ellis,
+    submittedBy: PEOPLE.okafor,
     certifiedAt: '2026-07-24T09:02:00',
     justification: { code: 'processing' },
     remark:
@@ -405,7 +420,7 @@ export const SEED_REQUESTS = [
       { status: 'submitted', at: '2026-07-24T09:02:00' },
       { status: 'review', at: '2026-07-28T13:20:00' },
     ],
-    notifications: buildNotifications('2026-07-24T09:02:00'),
+    notifications: buildNotifications('2026-07-24T09:02:00', PEOPLE.okafor, PEOPLE.ellis),
   },
   {
     id: 'RR-2026-0187',
@@ -413,7 +428,8 @@ export const SEED_REQUESTS = [
     submittedAt: '2026-08-11T14:22:00',
     status: 'review',
     statusDate: '2026-08-14',
-    submittedBy: COLLEAGUES.lindqvist,
+    requestedBy: PEOPLE.lindqvist,
+    submittedBy: PEOPLE.hart,
     certifiedAt: '2026-08-11T14:22:00',
     justification: { code: 'clockExpired' },
     remark:
@@ -447,7 +463,7 @@ export const SEED_REQUESTS = [
       { status: 'submitted', at: '2026-08-11T14:22:00' },
       { status: 'review', at: '2026-08-14T09:05:00' },
     ],
-    notifications: buildNotifications('2026-08-11T14:22:00', COLLEAGUES.lindqvist),
+    notifications: buildNotifications('2026-08-11T14:22:00', PEOPLE.hart, PEOPLE.lindqvist),
   },
   {
     id: 'RR-2026-0203',
@@ -455,7 +471,8 @@ export const SEED_REQUESTS = [
     submittedAt: '2026-09-02T11:30:00',
     status: 'returned',
     statusDate: '2026-09-10',
-    submittedBy: COLLEAGUES.okafor,
+    requestedBy: PEOPLE.okafor,
+    submittedBy: PEOPLE.okafor,
     certifiedAt: '2026-09-02T11:30:00',
     justification: { code: 'other' },
     remark:
@@ -487,7 +504,7 @@ export const SEED_REQUESTS = [
           'The remitter address on this request (3500 Fairfax Dr, Arlington, VA 22203) does not match the W-9 we have on file for Priya Raman, which lists a Falls Church address dated March 2026. We can’t issue a refund to an address that differs from the W-9 without documentation.\n\nPlease either update the remitter to the address on the W-9, or attach proof of the new address (a utility bill or updated W-9 dated within the last 90 days) and resubmit. Once it’s resubmitted, the request keeps its place in the review queue.',
       },
     ],
-    notifications: buildNotifications('2026-09-02T11:30:00', COLLEAGUES.okafor),
+    notifications: buildNotifications('2026-09-02T11:30:00', PEOPLE.okafor, PEOPLE.okafor),
   },
   {
     id: 'RR-2026-0205',
@@ -495,7 +512,8 @@ export const SEED_REQUESTS = [
     submittedAt: '2026-09-19T16:05:00',
     status: 'submitted',
     statusDate: '2026-09-19',
-    submittedBy: SUBMITTER,
+    requestedBy: PEOPLE.ellis,
+    submittedBy: PEOPLE.hart,
     certifiedAt: '2026-09-19T16:05:00',
     justification: { code: 'rejected' },
     remark:
@@ -522,6 +540,6 @@ export const SEED_REQUESTS = [
       },
     ],
     timeline: [{ status: 'submitted', at: '2026-09-19T16:05:00' }],
-    notifications: buildNotifications('2026-09-19T16:05:00'),
+    notifications: buildNotifications('2026-09-19T16:05:00', PEOPLE.hart, PEOPLE.ellis),
   },
 ].map((r) => ({ ...r, total: r.fees.reduce((s, f) => s + f.refund, 0) }));

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import {
   Anchor,
+  Box,
   Button,
   Checkbox,
   Group,
@@ -15,11 +16,11 @@ import {
   VisuallyHidden,
 } from '@mantine/core';
 import { useRefund } from '../state/RefundContext';
-import { CUSTOMERS, SUBMITTER } from '../data/mockData';
+import { CUSTOMERS } from '../data/mockData';
 import { STATUS_META } from '../theme';
 import { fmtDate } from '../lib/format';
 import { downloadHistoryCsv, downloadHistoryPdf, downloadHistoryDocx } from '../lib/exports';
-import { StatusBadge, Mono, Amount, Chevron } from './shared';
+import { StatusBadge, Mono, Amount, Chevron, LockIcon } from './shared';
 import RequestModal from './RequestModal';
 
 const COLUMNS = [
@@ -33,7 +34,7 @@ const COLUMNS = [
 ];
 
 export default function HistoryTable() {
-  const { requests, draft, resumeDraft } = useRefund();
+  const { currentUser, requests, draft, resumeDraft } = useRefund();
   const [filters, setFilters] = useState({ status: 'all', from: '', to: '', q: '' });
   const [sort, setSort] = useState({ key: 'submittedAt', dir: 'desc' });
   const [selected, setSelected] = useState(new Set());
@@ -44,7 +45,7 @@ export default function HistoryTable() {
       id: r.id,
       isDraft: false,
       customer: r.customer,
-      requestedBy: r.submittedBy.name,
+      requestedBy: r.requestedBy.name,
       submittedAt: r.submittedAt,
       status: r.status,
       statusDate: r.statusDate,
@@ -56,7 +57,7 @@ export default function HistoryTable() {
         isDraft: true,
         customer: draft.customer,
         // Drafts are private to the signed-in user.
-        requestedBy: SUBMITTER.name,
+        requestedBy: draft.createdBy.name,
         submittedAt: null,
         status: 'draft',
         statusDate: draft.startedAt.slice(0, 10),
@@ -127,8 +128,8 @@ export default function HistoryTable() {
           Previous Requests
         </Title>
         <Text fz="sm" c="dimmed" mt={2}>
-          Refund requests submitted by you and others in your office. Select a request ID to view
-          the full request. Check rows to download only those.
+          Every refund request from the {currentUser.office}, whoever started it. Select a request
+          ID to view the full request. Check rows to download only those.
         </Text>
       </div>
 
@@ -296,12 +297,19 @@ export default function HistoryTable() {
                 bg={r.id && selected.has(r.id) ? 'brand.0' : undefined}
               >
                 <Table.Td>
-                  <Checkbox
-                    checked={Boolean(r.id) && selected.has(r.id)}
-                    onChange={() => toggleRow(r.id)}
-                    disabled={r.isDraft}
-                    aria-label={`Select ${r.id || 'draft'}`}
-                  />
+                  {r.isDraft ? (
+                    // A draft can't be downloaded. A lock, not a disabled checkbox, as in Step 1.
+                    <Box c="dimmed" pt={2} pl={2}>
+                      <LockIcon />
+                      <VisuallyHidden>Draft can't be selected for download</VisuallyHidden>
+                    </Box>
+                  ) : (
+                    <Checkbox
+                      checked={selected.has(r.id)}
+                      onChange={() => toggleRow(r.id)}
+                      aria-label={`Select ${r.id}`}
+                    />
+                  )}
                 </Table.Td>
                 <Table.Td>
                   {r.isDraft ? (

@@ -9,7 +9,7 @@ import { deliveryLabel } from '../lib/selectors';
 // - StatusBadge: a filled pill, reserved for a request's workflow status. Nothing else is filled,
 //   so a filled shape is never mistaken for a control.
 // - Annotation: an icon plus text, no fill or border, for flags about a piece of data. Neutral
-//   (gray) states a fact; attention (amber) marks something the analyst should check, such as
+//   (gray) states a fact; attention (amber) marks something the user should check, such as
 //   anything that departs from the system of record or is incomplete.
 export const StatusBadge = ({ status }) => (
   // Never truncated: a cut-off status hides what the pill is for. Its column widens instead.
@@ -174,7 +174,10 @@ export const DiscardDraftButton = ({ size = 'sm' }) => {
         centered
         closeButtonProps={{ 'aria-label': 'Close' }}
       >
-        <Text>The fees, amounts and details you've entered will be deleted. This can't be undone.</Text>
+        <Text>
+          The draft's fees, amounts and details will be deleted for everyone in the office. This
+          can't be undone.
+        </Text>
         <Group justify="flex-end" mt="lg" gap="xs">
           <Button variant="default" onClick={() => setOpen(false)} data-autofocus>
             Keep Draft
@@ -223,7 +226,7 @@ export const RemitterSourceAnnotation = ({ source }) =>
     </Annotation>
   );
 
-// `together` adds "refunded together" where the analyst is choosing fees.
+// `together` adds "refunded together" where the user is choosing fees.
 export const LumpSumAnnotation = ({ count, together }) => (
   <Annotation>
     Lump sum{count ? ` of ${count} items` : ''}

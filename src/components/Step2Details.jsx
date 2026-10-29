@@ -19,7 +19,7 @@ export default function Step2Details() {
   const canContinue = step2Valid(draft);
   const justOk = justificationValid(draft);
   const remarkOk = remarkValid(draft);
-  // Flag the remark only once the analyst has left it empty, not on arrival.
+  // Flag the remark only once the user has left it empty, not on arrival.
   const [remarkTouched, setRemarkTouched] = useState(false);
   const isOther = draft.justification.code === 'other';
 
@@ -66,14 +66,14 @@ export default function Step2Details() {
             onChange={(code) => setJustification({ code })}
             maw={320}
           />
-          {/* The definition is recorded with the request, so show what the analyst is choosing. */}
+          {/* The definition is recorded with the request, so show what the user is choosing. */}
           {draft.justification.code && (
             <Text fz="sm" c="dimmed" className="readable" mt={-4}>
               Definition: {justificationDefinition(draft.justification)}
             </Text>
           )}
           {/* Required on every request, whatever the justification; for "Other" it is also where
-              the analyst explains the reason. */}
+              the user explains the reason. */}
           <Textarea
             label="Requester Remark"
             description={
