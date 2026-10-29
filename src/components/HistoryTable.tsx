@@ -16,14 +16,32 @@ import {
   VisuallyHidden,
 } from '@mantine/core';
 import { useRefund } from '../state/RefundContext';
-import { CUSTOMERS } from '../data/mockData';
+import type { Status } from '../types';
+import { customerById } from '../data/api';
 import { STATUS_META } from '../theme';
 import { fmtDate } from '../lib/format';
-import { downloadHistoryCsv, downloadHistoryPdf, downloadHistoryDocx } from '../lib/exports';
+import { downloadHistoryCsv, downloadHistoryPdf, downloadHistoryDocx, type ExportRow } from '../lib/exports';
 import { StatusBadge, Mono, Amount, Chevron, LockIcon } from './shared';
 import RequestModal from './RequestModal';
 
-const COLUMNS = [
+// A submitted request's row, or the office's draft (never exported).
+type Row =
+  | (ExportRow & { isDraft: false })
+  | {
+      isDraft: true;
+      id: null;
+      customer: string;
+      requestedBy: string;
+      submittedAt: null;
+      status: 'draft';
+      statusDate: string;
+      total: null;
+    };
+type SubmittedRow = Extract<Row, { isDraft: false }>;
+type SortKey = keyof ExportRow;
+type SortDir = 'asc' | 'desc';
+
+const COLUMNS: { key: SortKey; label: string; align?: 'right' }[] = [
   { key: 'id', label: 'Request ID' },
   { key: 'customer', label: 'Customer' },
   { key: 'requestedBy', label: 'Requested By' },
@@ -35,13 +53,18 @@ const COLUMNS = [
 
 export default function HistoryTable() {
   const { currentUser, requests, draft, resumeDraft } = useRefund();
-  const [filters, setFilters] = useState({ status: 'all', from: '', to: '', q: '' });
-  const [sort, setSort] = useState({ key: 'submittedAt', dir: 'desc' });
-  const [selected, setSelected] = useState(new Set());
-  const [openId, setOpenId] = useState(null);
+  const [filters, setFilters] = useState<{ status: Status | 'all'; from: string; to: string; q: string }>({
+    status: 'all',
+    from: '',
+    to: '',
+    q: '',
+  });
+  const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: 'submittedAt', dir: 'desc' });
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [openId, setOpenId] = useState<string | null>(null);
 
   const allRows = useMemo(() => {
-    const rows = requests.map((r) => ({
+    const rows: Row[] = requests.map((r) => ({
       id: r.id,
       isDraft: false,
       customer: r.customer,
@@ -74,16 +97,16 @@ export default function HistoryTable() {
         (!filters.from || (r.submittedAt && r.submittedAt.slice(0, 10) >= filters.from)) &&
         (!filters.to || (r.submittedAt && r.submittedAt.slice(0, 10) <= filters.to)) &&
         (!q ||
-          CUSTOMERS[r.customer].name.toLowerCase().includes(q) ||
+          customerById(r.customer).name.toLowerCase().includes(q) ||
           r.customer.toLowerCase().includes(q) ||
           (r.id || '').toLowerCase().includes(q))
     );
     const dir = sort.dir === 'asc' ? 1 : -1;
     // A draft has no submission date but is the request being worked on now, so by date
     // submitted it counts as the newest: first in the default (newest-first) order.
-    const value = (r) =>
+    const value = (r: Row): string | number =>
       sort.key === 'customer'
-        ? CUSTOMERS[r.customer].name
+        ? customerById(r.customer).name
         : sort.key === 'status'
           ? STATUS_META[r.status].label
           : sort.key === 'total'
@@ -98,13 +121,13 @@ export default function HistoryTable() {
     });
   }, [allRows, filters, sort]);
 
-  const exportable = rows.filter((r) => !r.isDraft);
+  const exportable = rows.filter((r): r is SubmittedRow => !r.isDraft);
   const selectedRows = exportable.filter((r) => selected.has(r.id));
   const exportRows = selectedRows.length ? selectedRows : exportable;
   const allSelected = exportable.length > 0 && selectedRows.length === exportable.length;
   const anyFilter = filters.status !== 'all' || filters.from || filters.to || filters.q;
 
-  const toggleSort = (key) =>
+  const toggleSort = (key: SortKey) =>
     setSort((s) =>
       s.key === key
         ? { key, dir: s.dir === 'asc' ? 'desc' : 'asc' }
@@ -114,7 +137,7 @@ export default function HistoryTable() {
   const toggleAll = () =>
     setSelected(allSelected ? new Set() : new Set(exportable.map((r) => r.id)));
 
-  const toggleRow = (id) =>
+  const toggleRow = (id: string) =>
     setSelected((s) => {
       const next = new Set(s);
       next.has(id) ? next.delete(id) : next.add(id);
@@ -141,7 +164,8 @@ export default function HistoryTable() {
             ...Object.entries(STATUS_META).map(([value, meta]) => ({ value, label: meta.label })),
           ]}
           value={filters.status}
-          onChange={(status) => setFilters((f) => ({ ...f, status: status || 'all' }))}
+          // The options are the statuses and 'all', so the chosen value is one of them.
+          onChange={(status) => setFilters((f) => ({ ...f, status: (status ?? 'all') as Status | 'all' }))}
           w={220}
         />
         <TextInput
@@ -322,7 +346,7 @@ export default function HistoryTable() {
                 </Table.Td>
                 <Table.Td>
                   <Text inherit fw={500}>
-                    {CUSTOMERS[r.customer].name}
+                    {customerById(r.customer).name}
                   </Text>
                   <Mono fz={13} c="dimmed">
                     {r.customer}
@@ -360,7 +384,7 @@ export default function HistoryTable() {
 }
 
 // Up/down arrows on every sortable header; the active direction is solid, the rest faint.
-const SortIcon = ({ dir }) => (
+const SortIcon = ({ dir }: { dir: SortDir | null }) => (
   <svg viewBox="0 0 10 14" width={8} height={12} aria-hidden="true" style={{ flexShrink: 0 }}>
     <path d="M5 1 9 5.5H1Z" fill="currentColor" opacity={dir === 'asc' ? 1 : 0.35} />
     <path d="M5 13 1 8.5h8Z" fill="currentColor" opacity={dir === 'desc' ? 1 : 0.35} />

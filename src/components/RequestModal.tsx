@@ -1,4 +1,6 @@
 import { Anchor, Box, Button, Group, Modal, Stack, Text, Timeline, Title } from '@mantine/core';
+import type { MouseEvent, ReactNode } from 'react';
+import type { RequestStatus, TimelineEvent } from '../types';
 import { useRefund } from '../state/RefundContext';
 import { STATUS_META } from '../theme';
 import { fmtDateTime } from '../lib/format';
@@ -10,7 +12,7 @@ import RequestRecord from './RequestRecord';
 // The modal is a living record: a snapshot of what was submitted (RequestRecord), then Activity
 // (everything after submission), which keeps growing below it. Activity follows the record's
 // type rules, with weight also on event titles.
-export default function RequestModal({ requestId, onClose }) {
+export default function RequestModal({ requestId, onClose }: { requestId: string | null; onClose: () => void }) {
   const { requests } = useRefund();
   const request = requests.find((r) => r.id === requestId);
   if (!request) return <Modal opened={false} onClose={onClose} />;
@@ -116,10 +118,10 @@ export default function RequestModal({ requestId, onClose }) {
   );
 }
 
-const noteId = (e) => `note-${e.at}`;
+const noteId = (e: { at: string }) => `note-${e.at}`;
 
 // Activity sits under an h3, so each event is an h4.
-const EventHeading = ({ children }) => (
+const EventHeading = ({ children }: { children: ReactNode }) => (
   <Title order={4} fz="sm" fw={600} lh="inherit">
     {children}
   </Title>
@@ -150,9 +152,9 @@ const MailIcon = () => (
 
 // Short notice above the record that the current status carries an OCFO note. The note itself
 // stays in Activity; the link scrolls to it and moves focus there.
-const PinnedNotice = ({ event }) => {
+const PinnedNotice = ({ event }: { event: TimelineEvent }) => {
   const color = STATUS_META[event.status].color;
-  const goToNote = (ev) => {
+  const goToNote = (ev: MouseEvent<HTMLAnchorElement>) => {
     ev.preventDefault();
     const el = document.getElementById(noteId(event));
     el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -192,7 +194,17 @@ const PinnedNotice = ({ event }) => {
 
 // A reviewer's note on a status change. Notes can run to several paragraphs, so only the header
 // strip carries the status color; the note itself is body text on white at a readable measure.
-const StatusNote = ({ id, status, at, children }) => {
+const StatusNote = ({
+  id,
+  status,
+  at,
+  children,
+}: {
+  id: string;
+  status: RequestStatus;
+  at: string;
+  children: ReactNode;
+}) => {
   const color = STATUS_META[status].color;
   return (
     <Box

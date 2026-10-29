@@ -1,4 +1,5 @@
-import { alpha, createTheme, DEFAULT_THEME, ScrollArea } from '@mantine/core';
+import { alpha, createTheme, DEFAULT_THEME, ScrollArea, type CSSVariablesResolver } from '@mantine/core';
+import type { Status } from './types';
 
 // Text and status colors, each checked for at least 4.5:1 contrast (WCAG 2.1 AA) against
 // white, the canvas and inset surfaces, and brand.0.
@@ -83,8 +84,8 @@ export const theme = createTheme({
 // pinned to shade 9 for its filled, light and outline variants so its text keeps AA
 // contrast. color="blue" therefore renders darker than Mantine's docs show.
 // The primary color uses its lightest tints for light backgrounds and their hover.
-export const cssVariablesResolver = (t) => {
-  const light = {
+export const cssVariablesResolver: CSSVariablesResolver = (t) => {
+  const light: Record<string, string> = {
     '--mantine-color-brand-light': t.colors.brand[0],
     '--mantine-color-brand-light-hover': t.colors.brand[1],
     '--mantine-color-dimmed': TEXT.secondary,
@@ -119,7 +120,7 @@ export const cssVariablesResolver = (t) => {
 };
 
 // Status display metadata shared across the history table, modal, and confirmation.
-export const STATUS_META = {
+export const STATUS_META: Record<Status, { label: string; color: string }> = {
   draft: { label: 'Draft', color: 'gray' },
   submitted: { label: 'Submitted to OCFO', color: 'blue' },
   review: { label: 'Under OCFO Review', color: 'yellow' },

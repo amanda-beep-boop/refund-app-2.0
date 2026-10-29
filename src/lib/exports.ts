@@ -1,5 +1,5 @@
 import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import autoTable, { type RowInput } from 'jspdf-autotable';
 import {
   Document,
   Packer,
@@ -13,7 +13,9 @@ import {
   WidthType,
   PageOrientation,
 } from 'docx';
-import { CUSTOMERS, JUSTIFICATION_LABEL } from '../data/mockData';
+import type { RefundRequest, Status } from '../types';
+import { customerById } from '../data/api';
+import { JUSTIFICATION_LABEL } from '../data/mockData';
 import { fmt, fmtDate, fmtDateTime, nowISO, todayISO } from './format';
 import {
   remitterNotes,
@@ -31,7 +33,7 @@ import { STATUS_META } from '../theme';
 // record and the download are the same artifact. Client-side generation is a
 // POC stand-in.
 
-const saveBlob = (filename, blob) => {
+const saveBlob = (filename: string, blob: Blob) => {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -41,6 +43,22 @@ const saveBlob = (filename, blob) => {
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 4000);
 };
+
+/** One row of the Previous Requests table, as exported. Drafts are never exported. */
+export interface ExportRow {
+  id: string;
+  customer: string;
+  /** The requester's name. */
+  requestedBy: string;
+  submittedAt: string;
+  status: Status;
+  statusDate: string;
+  total: number;
+}
+
+type RGB = [number, number, number];
+// jspdf-autotable records where the last table ended on the document it drew on.
+type Doc = jsPDF & { lastAutoTable: { finalY: number } };
 
 const HEADERS = [
   'Request ID',
@@ -54,10 +72,10 @@ const HEADERS = [
 ];
 const AMOUNT_COL = HEADERS.indexOf('Amount');
 
-const rowArrays = (rows) =>
+const rowArrays = (rows: ExportRow[]): string[][] =>
   rows.map((r) => [
     r.id,
-    CUSTOMERS[r.customer].name,
+    customerById(r.customer).name,
     r.customer,
     r.requestedBy,
     fmtDate(r.submittedAt),
@@ -66,8 +84,8 @@ const rowArrays = (rows) =>
     fmt(r.total),
   ]);
 
-export function downloadHistoryCsv(rows) {
-  const quote = (v) => {
+export function downloadHistoryCsv(rows: ExportRow[]) {
+  const quote = (v: unknown) => {
     const s = String(v ?? '');
     return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
@@ -76,7 +94,7 @@ export function downloadHistoryCsv(rows) {
   saveBlob(`fee-refund-requests-${todayISO()}.csv`, new Blob([csv], { type: 'text/csv' }));
 }
 
-export function downloadHistoryPdf(rows) {
+export function downloadHistoryPdf(rows: ExportRow[]) {
   const doc = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'letter' });
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(16);
@@ -100,8 +118,8 @@ export function downloadHistoryPdf(rows) {
   );
 }
 
-export async function downloadHistoryDocx(rows) {
-  const cell = (text, opts = {}) =>
+export async function downloadHistoryDocx(rows: ExportRow[]) {
+  const cell = (text: unknown, opts: { right?: boolean; bold?: boolean } = {}) =>
     new TableCell({
       children: [
         new Paragraph({
@@ -141,25 +159,25 @@ export async function downloadHistoryDocx(rows) {
 
 // Mirrors the request modal: a snapshot of the submitted request, then Activity. All wording
 // comes from the same selectors the modal uses, so the record and its download never disagree.
-export function downloadRequestPdf(request) {
-  const c = CUSTOMERS[request.customer];
-  const doc = new jsPDF({ unit: 'pt', format: 'letter' });
+export function downloadRequestPdf(request: RefundRequest) {
+  const c = customerById(request.customer);
+  const doc = new jsPDF({ unit: 'pt', format: 'letter' }) as Doc;
   const width = doc.internal.pageSize.getWidth();
   const height = doc.internal.pageSize.getHeight();
   const M = 40;
   const inner = width - M * 2;
   // The modal's palette: dark text, the one secondary gray, subtle rules, the inset surface.
-  const DARK = [33, 37, 41];
-  const GRAY = [79, 89, 102];
-  const RULE = [222, 226, 230];
-  const INSET = [238, 241, 244];
+  const DARK: RGB = [33, 37, 41];
+  const GRAY: RGB = [79, 89, 102];
+  const RULE: RGB = [222, 226, 230];
+  const INSET: RGB = [238, 241, 244];
   const base = { fontSize: 9.5, cellPadding: { top: 4, right: 6, bottom: 4, left: 0 }, textColor: DARK };
-  const labelStyle = { textColor: GRAY, fontStyle: 'bold' };
-  const gray = (content) => ({ content, styles: { textColor: GRAY } });
+  const labelStyle = { textColor: GRAY, fontStyle: 'bold' as const };
+  const gray = (content: string) => ({ content, styles: { textColor: GRAY } });
   const after = (gap = 18) => doc.lastAutoTable.finalY + gap;
-  const room = (y, need) => (y + need > height - 50 ? (doc.addPage(), 50) : y);
+  const room = (y: number, need: number) => (y + need > height - 50 ? (doc.addPage(), 50) : y);
 
-  const setText = (size, style = 'normal', color = DARK) => {
+  const setText = (size: number, style: 'normal' | 'bold' = 'normal', color: RGB = DARK) => {
     doc.setFont('helvetica', style);
     doc.setFontSize(size);
     doc.setTextColor(...color);
@@ -207,7 +225,7 @@ export function downloadRequestPdf(request) {
 
   // Requester Remark leads, then the justification, matching the record.
   const j = request.justification;
-  const label = (content) => [
+  const label = (content: string) => [
     { content, styles: { ...labelStyle, cellPadding: { top: 10, right: 6, bottom: 2, left: 0 } } },
   ];
   autoTable(doc, {
@@ -225,7 +243,7 @@ export function downloadRequestPdf(request) {
     ],
   });
 
-  const ruled = (bottom) => ({ lineColor: RULE, lineWidth: { bottom } });
+  const ruled = (bottom: number) => ({ lineColor: RULE, lineWidth: { bottom } });
   autoTable(doc, {
     startY: after(14),
     margin: { left: M + 10, right: M + 10 },
@@ -302,7 +320,7 @@ export function downloadRequestPdf(request) {
     body: requestActivity(request).flatMap((e) => {
       // Extra space above each event's first row separates events from one another.
       const lead = { cellPadding: { top: 10, right: 6, bottom: 2, left: 0 } };
-      const rows = [
+      const rows: RowInput[] = [
         [
           { content: fmtDateTime(e.at), styles: lead },
           {
@@ -313,7 +331,7 @@ export function downloadRequestPdf(request) {
       ];
       if (e.kind === 'enote')
         e.notified.forEach((n) => rows.push(['', `${n.role}: ${n.name}\n${deliveryLabel(n)}`]));
-      if (e.note) {
+      if (e.kind === 'status' && e.note) {
         rows.push(['', { content: 'Note from the OCFO', styles: labelStyle }]);
         rows.push(['', e.note]);
       }

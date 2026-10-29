@@ -1,5 +1,18 @@
-import { useState } from 'react';
-import { Badge, Button, Group, Modal, Stack, Text, Title, VisuallyHidden } from '@mantine/core';
+import { useState, type ComponentPropsWithoutRef, type ElementType, type ReactNode } from 'react';
+import {
+  Badge,
+  Button,
+  Group,
+  Modal,
+  Stack,
+  Text,
+  Title,
+  VisuallyHidden,
+  type MantineSize,
+  type TextProps,
+  type TitleOrder,
+} from '@mantine/core';
+import type { Customer, Notification, RemitterSource, Status } from '../types';
 import { STATUS_META } from '../theme';
 import { useRefund } from '../state/RefundContext';
 import { fmt } from '../lib/format';
@@ -11,7 +24,7 @@ import { deliveryLabel } from '../lib/selectors';
 // - Annotation: an icon plus text, no fill or border, for flags about a piece of data. Neutral
 //   (gray) states a fact; attention (amber) marks something the user should check, such as
 //   anything that departs from the system of record or is incomplete.
-export const StatusBadge = ({ status }) => (
+export const StatusBadge = ({ status }: { status: Status }) => (
   // Never truncated: a cut-off status hides what the pill is for. Its column widens instead.
   <Badge
     variant="light"
@@ -26,23 +39,29 @@ export const StatusBadge = ({ status }) => (
   </Badge>
 );
 
+// Text props plus the element to render as, for components that wrap Mantine's Text.
+type TextLike = Omit<TextProps, 'component'> & { component?: ElementType; children?: ReactNode; id?: string };
+// Mantine's Text is polymorphic over its `component`. Narrowing the element type here keeps the
+// wrappers' `component` open to any element while every other prop stays checked.
+const asElement = (component: ElementType) => component as 'p';
+
 // Identifiers only (customer, fee, request IDs). Amounts use <Amount>.
-export const Mono = ({ children, ...props }) => (
-  <Text component="span" ff="monospace" fz="sm" {...props}>
+export const Mono = ({ children, component = 'span', ...props }: TextLike) => (
+  <Text component={asElement(component)} ff="monospace" fz="sm" {...props}>
     {children}
   </Text>
 );
 
 // Dollar amount in the body font with tabular figures, so columns of amounts line up.
-export const Amount = ({ cents, ...props }) => (
+export const Amount = ({ cents, ...props }: TextProps & { cents: number }) => (
   <Text component="span" inherit className="tabular" {...props}>
     {fmt(cents)}
   </Text>
 );
 
 // Small sentence-case label above a value.
-export const FieldLabel = ({ children, ...props }) => (
-  <Text fz="sm" fw={600} c="dimmed" {...props}>
+export const FieldLabel = ({ children, component = 'p', ...props }: TextLike) => (
+  <Text component={asElement(component)} fz="sm" fw={600} c="dimmed" {...props}>
     {children}
   </Text>
 );
@@ -51,7 +70,7 @@ export const FieldLabel = ({ children, ...props }) => (
 // and any details after it gray (<Text inherit c="dimmed">).
 // Renders a term/description pair, so it must sit inside a <dl>: screen readers then announce
 // each value with its label.
-export const Field = ({ label, children }) => (
+export const Field = ({ label, children }: { label: ReactNode; children: ReactNode }) => (
   <div>
     <dt>
       <FieldLabel component="span">{label}</FieldLabel>
@@ -67,7 +86,12 @@ export const Field = ({ label, children }) => (
 // Groups related controls under a legend without the visual weight of Mantine's Fieldset.
 // `heading` (a level) makes the legend a heading, for a group that is one of the page's main
 // decisions: it reads as one, and screen reader users can reach it with heading navigation.
-export const FieldGroup = ({ legend, heading, children, ...props }) => (
+export const FieldGroup = ({
+  legend,
+  heading,
+  children,
+  ...props
+}: { legend: ReactNode; heading?: TitleOrder; children: ReactNode } & ComponentPropsWithoutRef<'fieldset'>) => (
   <fieldset className="plain-fieldset" {...props}>
     <legend>
       {heading ? (
@@ -83,7 +107,13 @@ export const FieldGroup = ({ legend, heading, children, ...props }) => (
 );
 
 // Who the customer is, the same everywhere: full name as the heading, customer ID beside it.
-export const CustomerSummary = ({ customer, order = 2 }) => (
+export const CustomerSummary = ({
+  customer,
+  order = 2,
+}: {
+  customer: Pick<Customer, 'id' | 'name'>;
+  order?: TitleOrder;
+}) => (
   <Group gap="sm" align="baseline" wrap="wrap">
     <Title order={order} fz="lg">
       {customer.name}
@@ -95,7 +125,13 @@ export const CustomerSummary = ({ customer, order = 2 }) => (
   </Group>
 );
 
-export const Annotation = ({ tone = 'neutral', children }) => {
+export const Annotation = ({
+  tone = 'neutral',
+  children,
+}: {
+  tone?: 'neutral' | 'attention';
+  children: ReactNode;
+}) => {
   const attention = tone === 'attention';
   return (
     <Text
@@ -112,7 +148,7 @@ export const Annotation = ({ tone = 'neutral', children }) => {
 };
 
 // Text cue for incomplete sections, so the warning border isn't the only signal.
-export const IncompleteLabel = ({ children = 'Incomplete' }) => (
+export const IncompleteLabel = ({ children = 'Incomplete' }: { children?: ReactNode }) => (
   <Annotation tone="attention">{children}</Annotation>
 );
 
@@ -140,7 +176,7 @@ export const LockIcon = () => (
 );
 
 // Decorative chevron for buttons and disclosures; hidden from assistive technology.
-export const Chevron = ({ dir = 'right', size = 14 }) => {
+export const Chevron = ({ dir = 'right', size = 14 }: { dir?: 'right' | 'down' | 'left'; size?: number }) => {
   const rotate = { right: 0, down: 90, left: 180 }[dir];
   return (
     <svg
@@ -164,7 +200,7 @@ export const Chevron = ({ dir = 'right', size = 14 }) => {
 
 // Explains why the adjacent primary button is disabled. Polite live region so the hint is
 // announced as it changes.
-export const DisabledHint = ({ items }) => (
+export const DisabledHint = ({ items }: { items: string[] }) => (
   <div role="status" aria-live="polite">
     {items.length > 0 && (
       // Gray, not amber: it's guidance about what's left to do, not a warning. Secondary gray
@@ -180,7 +216,7 @@ export const DisabledHint = ({ items }) => (
 );
 
 // Discarding a draft can't be undone, so it always asks first.
-export const DiscardDraftButton = ({ size = 'sm' }) => {
+export const DiscardDraftButton = ({ size = 'sm' }: { size?: MantineSize }) => {
   const { discardDraft } = useRefund();
   const [open, setOpen] = useState(false);
   return (
@@ -219,7 +255,7 @@ export const DiscardDraftButton = ({ size = 'sm' }) => {
 };
 
 // Who E-Note notified and how: the recipient's name, then the delivery it made.
-export const NotificationList = ({ notifications }) => (
+export const NotificationList = ({ notifications }: { notifications: Notification[] }) => (
   <Stack gap="xs" component="ul" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
     {notifications.map((n, i) => (
       <Group key={i} gap="md" wrap="nowrap" align="baseline" component="li">
@@ -238,7 +274,7 @@ export const NotificationList = ({ notifications }) => (
 );
 
 // Where a fee's remitter came from. Anything other than the payment record needs checking.
-export const RemitterSourceAnnotation = ({ source }) =>
+export const RemitterSourceAnnotation = ({ source }: { source: RemitterSource }) =>
   source === 'record' ? (
     <Annotation>From payment record</Annotation>
   ) : (
@@ -248,7 +284,7 @@ export const RemitterSourceAnnotation = ({ source }) =>
   );
 
 // `together` adds "refunded together" where the user is choosing fees.
-export const LumpSumAnnotation = ({ count, together }) => (
+export const LumpSumAnnotation = ({ count, together }: { count?: number; together?: boolean }) => (
   <Annotation>
     Lump sum{count ? ` of ${count} items` : ''}
     {together ? ', refunded together' : ''}

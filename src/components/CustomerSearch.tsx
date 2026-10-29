@@ -12,30 +12,32 @@ import {
   VisuallyHidden,
 } from '@mantine/core';
 import { useRefund } from '../state/RefundContext';
-import { CUSTOMERS } from '../data/mockData';
+import type { FormEvent } from 'react';
+import type { Customer } from '../types';
+import { findCustomer, listSampleCustomerIds } from '../data/api';
 import { feeRequest } from '../lib/selectors';
 import { Mono, Chevron, CustomerSummary } from './shared';
 
-const SAMPLE_IDS = Object.keys(CUSTOMERS);
+const SAMPLE_IDS = listSampleCustomerIds();
 
 export default function CustomerSearch() {
   const { startDraft, requests } = useRefund();
   const [query, setQuery] = useState('');
   // undefined = no search yet; null = no match; object = found customer
-  const [result, setResult] = useState(undefined);
+  const [result, setResult] = useState<Customer | null | undefined>(undefined);
   const [searched, setSearched] = useState('');
 
-  const lookUp = (raw) => {
+  const lookUp = (raw: string) => {
     const id = raw.trim().toUpperCase();
     setSearched(id);
-    setResult(id ? CUSTOMERS[id] || null : undefined);
+    setResult(id ? findCustomer(id) : undefined);
   };
-  const search = (e) => {
+  const search = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     lookUp(query);
   };
   // Demo only: a sample ID fills the field and runs the search.
-  const trySample = (id) => {
+  const trySample = (id: string) => {
     setQuery(id);
     lookUp(id);
   };

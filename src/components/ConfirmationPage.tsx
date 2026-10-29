@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button, Divider, Group, Paper, Stack, Text, Title } from '@mantine/core';
 import { useRefund } from '../state/RefundContext';
-import { CUSTOMERS } from '../data/mockData';
+import { customerById } from '../data/api';
 import { fmtDateTime } from '../lib/format';
 import { enoteTitle } from '../lib/selectors';
 import { StatusBadge, Mono, Amount, Field, FieldLabel, NotificationList } from './shared';
@@ -11,7 +11,7 @@ export default function ConfirmationPage() {
   const { lastSubmitted, setView } = useRefund();
   const [modalOpen, setModalOpen] = useState(false);
   if (!lastSubmitted) return null;
-  const customer = CUSTOMERS[lastSubmitted.customer];
+  const customer = customerById(lastSubmitted.customer);
 
   return (
     <Stack gap="lg">

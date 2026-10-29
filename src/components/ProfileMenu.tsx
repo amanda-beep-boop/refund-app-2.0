@@ -4,7 +4,7 @@ import { useRefund } from '../state/RefundContext';
 import { DEMO_ACCOUNTS, ROLE_LABEL } from '../data/mockData';
 import { Chevron, Field, FieldLabel } from './shared';
 
-const initials = (name) =>
+const initials = (name: string) =>
   name
     .split(' ')
     .map((w) => w[0])

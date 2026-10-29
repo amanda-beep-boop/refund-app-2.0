@@ -1,13 +1,13 @@
 import { Button, Group, Paper, Stack, Text, Title } from '@mantine/core';
 import { useRefund } from '../state/RefundContext';
-import { CUSTOMERS } from '../data/mockData';
+import { customerById } from '../data/api';
 import { Mono, DiscardDraftButton } from './shared';
 import CustomerSearch from './CustomerSearch';
 import HistoryTable from './HistoryTable';
 
 export default function HomePage() {
   const { currentUser, draft, resumeDraft } = useRefund();
-  const draftCustomer = draft ? CUSTOMERS[draft.customer] : null;
+  const draftCustomer = draft ? customerById(draft.customer) : null;
   const office = currentUser.office;
 
   return (
@@ -23,7 +23,7 @@ export default function HomePage() {
         </Text>
       </div>
 
-      {draft ? (
+      {draft && draftCustomer ? (
         // The draft belongs to the office, not to one person (one draft at a time per office), so
         // the copy speaks at the office level and names whoever started it. A white card with a
         // primary-blue accent bar (5.2:1 on white) makes it prominent without the amber that means

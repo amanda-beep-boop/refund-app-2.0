@@ -1,16 +1,29 @@
 // ---------------------------------------------------------------------------
-// Mock data. In the real feature all of this comes from the backend:
-// customers + fees from the payment system of record, requests from the
-// refund-request service. Amounts are integer cents.
+// Mock data, typed against the contract in src/types.ts. In the real feature all of this comes
+// from the backend: customers + fees from the payment system of record, requests from the
+// refund-request service, people from the auth service. Amounts are integer cents.
+// The UI reads this only through src/data/api.ts.
 // ---------------------------------------------------------------------------
+import type {
+  Customer,
+  ISODateTime,
+  JustificationCode,
+  JustificationOption,
+  Notification,
+  Person,
+  RefundMethod,
+  RefundRequest,
+  Remitter,
+  Role,
+} from '../types';
 
 // People in the signed-in user's office. In production the auth system supplies the signed-in
 // user's name, email, role and office; requests and the draft are scoped to that office.
 // Staff can do every step except certify and submit; only a Supervisor can certify and submit.
 // Placeholder: the office name comes from the auth service.
 export const OFFICE = 'New York Office';
-export const ROLE_LABEL = { staff: 'Staff', supervisor: 'Supervisor' };
-const person = (name, email, role) => ({ name, email, role, office: OFFICE });
+export const ROLE_LABEL: Record<Role, string> = { staff: 'Staff', supervisor: 'Supervisor' };
+const person = (name: string, email: string, role: Role): Person => ({ name, email, role, office: OFFICE });
 export const PEOPLE = {
   ellis: person('Jordan Ellis', 'jordan.ellis@agency.example', 'staff'),
   hart: person('Simone Hart', 'simone.hart@agency.example', 'supervisor'),
@@ -18,13 +31,13 @@ export const PEOPLE = {
   lindqvist: person('Marcus Lindqvist', 'marcus.lindqvist@agency.example', 'staff'),
 };
 // The two accounts the demo can sign in as (see ProfileMenu). The first is signed in at start.
-export const DEMO_ACCOUNTS = [PEOPLE.ellis, PEOPLE.hart];
+export const DEMO_ACCOUNTS: Person[] = [PEOPLE.ellis, PEOPLE.hart];
 export const OCFO = { name: 'OCFO Refund Review', email: 'refunds@ocfo.example' };
 
 // Reasons staff can give for a refund. Definitions for the first three are pending from the
 // business (null until then). A request stores the definition in force when it was certified, so
 // later edits here don't rewrite old records.
-export const JUSTIFICATIONS = [
+export const JUSTIFICATIONS: JustificationOption[] = [
   { value: 'processing', label: 'Processing Error', definition: null },
   { value: 'clockExpired', label: 'Clock Expired', definition: null },
   { value: 'rejected', label: 'Case Rejected', definition: null },
@@ -38,11 +51,11 @@ export const JUSTIFICATIONS = [
 
 export const JUSTIFICATION_LABEL = Object.fromEntries(
   JUSTIFICATIONS.map((j) => [j.value, j.label])
-);
+) as Record<JustificationCode, string>;
 
 export const JUSTIFICATION_DEFINITION = Object.fromEntries(
   JUSTIFICATIONS.map((j) => [j.value, j.definition])
-);
+) as Record<JustificationCode, string | null>;
 
 // Fees are paid by ACH, PayPal or, rarely, money order. A money order has no account (bank,
 // acct and instrument are null) and usually no remitter on file, so it can only be refunded by
@@ -52,7 +65,7 @@ export const JUSTIFICATION_DEFINITION = Object.fromEntries(
 // fee was paid with; "check" = paper check to the address.
 // Every paid fee is listed. Fees already in a request (see SEED_REQUESTS) show in Step 1 as
 // read-only, so the user can see they were requested but can't request them again.
-export const CUSTOMERS = {
+export const CUSTOMERS: Record<string, Customer> = {
   'C-104822': {
     id: 'C-104822',
     name: 'Marisol Ortega',
@@ -279,20 +292,30 @@ export const CUSTOMERS = {
   },
 };
 
-const R = (name, address, method) => ({ name, address, method: method || 'original' });
+const R = (name: string, address: string, method?: RefundMethod): Remitter => ({
+  name,
+  address,
+  method: method || 'original',
+});
 
 // E-Note notifies the submitter (the Supervisor who certified), the requester when someone else
 // prepared the request, and the OCFO. Remitters are never notified: they don't interact with
 // this application.
-export const buildNotifications = (at, submitter, requester = submitter) => [
-  { role: 'Submitter', name: submitter.name, to: submitter.email, at },
-  ...(requester.email !== submitter.email
-    ? [{ role: 'Requester', name: requester.name, to: requester.email, at }]
-    : []),
-  { role: 'OCFO', name: OCFO.name, to: OCFO.email, at },
-];
+export const buildNotifications = (
+  at: ISODateTime,
+  submitter: Person,
+  requester: Person = submitter
+): Notification[] => {
+  const sent: Notification[] = [{ role: 'Submitter', name: submitter.name, to: submitter.email, at }];
+  if (requester.email !== submitter.email) {
+    sent.push({ role: 'Requester', name: requester.name, to: requester.email, at });
+  }
+  sent.push({ role: 'OCFO', name: OCFO.name, to: OCFO.email, at });
+  return sent;
+};
 
-export const SEED_REQUESTS = [
+// Totals are derived from the fees, so a seed can never disagree with its own lines.
+const seeds: Omit<RefundRequest, 'total'>[] = [
   {
     id: 'RR-2026-0142',
     customer: 'C-220917',
@@ -526,4 +549,9 @@ export const SEED_REQUESTS = [
     timeline: [{ status: 'submitted', at: '2026-09-19T16:05:00' }],
     notifications: buildNotifications('2026-09-19T16:05:00', PEOPLE.hart, PEOPLE.ellis),
   },
-].map((r) => ({ ...r, total: r.fees.reduce((s, f) => s + f.refund, 0) }));
+];
+
+export const SEED_REQUESTS: RefundRequest[] = seeds.map((r) => ({
+  ...r,
+  total: r.fees.reduce((sum, f) => sum + f.refund, 0),
+}));

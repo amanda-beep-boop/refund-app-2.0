@@ -12,7 +12,9 @@ import {
   TextInput,
   Title,
 } from '@mantine/core';
-import { useRefund } from '../state/RefundContext';
+import type { Fee } from '../types';
+import type { AmountMode } from '../state/draft';
+import { useActiveDraft, useRefund } from '../state/RefundContext';
 import { fmt, dollars, methodLabel, capitalize } from '../lib/format';
 import {
   amountEntered,
@@ -28,10 +30,12 @@ import { Mono, Amount, FieldGroup, IncompleteLabel, RemitterSourceAnnotation } f
 // One card per fee holds the two decisions for it: how much to refund, and to whom. What was
 // paid (date, payment method, line items) is shown once, in the reference panel above the cards.
 
-export default function FeeCard({ fee }) {
-  const { draft, setAmount, setRemitter, restoreRemitter } = useRefund();
+export default function FeeCard({ fee }: { fee: Fee }) {
+  const { setAmount, setRemitter, restoreRemitter } = useRefund();
+  const { draft } = useActiveDraft();
   const amount = draft.amounts[fee.id];
   const remitter = draft.remitters[fee.id];
+  const record = fee.remitter;
   const source = remitterSource(fee, draft);
   const partial = amount.mode === 'partial';
   const amountOk = amountValid(fee, draft);
@@ -61,7 +65,7 @@ export default function FeeCard({ fee }) {
   const showSource = source !== 'manual' || Boolean(remitter.name.trim() || remitter.address.trim());
 
   // Choosing Partial clears the amount and moves focus into it.
-  const amountRef = useRef(null);
+  const amountRef = useRef<HTMLInputElement>(null);
   const focusAmount = useRef(false);
   useEffect(() => {
     if (partial && focusAmount.current) {
@@ -110,7 +114,8 @@ export default function FeeCard({ fee }) {
                   { value: 'partial', label: 'Partial' },
                 ]}
                 value={amount.mode}
-                onChange={(mode) => {
+                onChange={(value) => {
+                  const mode: AmountMode = value === 'partial' ? 'partial' : 'full';
                   focusAmount.current = mode === 'partial';
                   setAmount(fee.id, { mode, input: mode === 'full' ? dollars(fee.cents) : '' });
                 }}
@@ -199,7 +204,9 @@ export default function FeeCard({ fee }) {
                     { value: 'check', label: capitalize(methodLabel(fee, 'check')) },
                   ]}
                   value={remitter.method}
-                  onChange={(method) => setRemitter(fee.id, { method: method || 'original' })}
+                  onChange={(method) =>
+                    setRemitter(fee.id, { method: method === 'check' ? 'check' : 'original' })
+                  }
                 />
               )}
               <Group gap="xs">
@@ -217,15 +224,15 @@ export default function FeeCard({ fee }) {
                     Restore Record
                   </Button>
                 )}
-                {fee.remitter && source === 'record' && (
+                {record && source === 'record' && (
                   <Button
                     size="sm"
                     variant="subtle"
                     onClick={() =>
                       setRemitter(fee.id, {
-                        name: fee.remitter.name,
-                        address: fee.remitter.address,
-                        method: fee.remitter.method,
+                        name: record.name,
+                        address: record.address,
+                        method: record.method,
                         editing: false,
                       })
                     }

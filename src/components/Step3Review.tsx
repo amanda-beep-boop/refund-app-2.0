@@ -1,5 +1,5 @@
 import { Button, Checkbox, Group, Stack, Text, VisuallyHidden } from '@mantine/core';
-import { useRefund } from '../state/RefundContext';
+import { useActiveDraft, useRefund } from '../state/RefundContext';
 import { canSubmit, draftRequest } from '../lib/selectors';
 import { Chevron, DisabledHint, FieldLabel } from './shared';
 import RequestRecord from './RequestRecord';
@@ -9,7 +9,8 @@ import RequestRecord from './RequestRecord';
 // Only a Supervisor can certify and submit. Staff see why in that same spot, and save the draft
 // for a Supervisor to resume instead; there's no Submit button they could never use.
 export default function Step3Review() {
-  const { currentUser, draft, sending, setCertified, setStep, submit, saveAndExit } = useRefund();
+  const { currentUser, sending, setCertified, setStep, submit, saveAndExit } = useRefund();
+  const { draft } = useActiveDraft();
   const supervisor = canSubmit(currentUser);
 
   return (

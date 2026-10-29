@@ -12,7 +12,8 @@ import {
   Title,
   VisuallyHidden,
 } from '@mantine/core';
-import { useRefund } from '../state/RefundContext';
+import type { Customer, Fee, JustificationCode } from '../types';
+import { useActiveDraft, useRefund } from '../state/RefundContext';
 import { JUSTIFICATIONS } from '../data/mockData';
 import { fmtDate } from '../lib/format';
 import {
@@ -31,7 +32,7 @@ import FeeCard from './FeeCard';
 // Everything the system pulled up, in one place: the customer, then each selected fee as paid,
 // with a lump sum's items beneath it and the total paid. The fee cards below hold only the
 // decisions, so reference and decisions don't compete.
-function PaidReference({ customer, fees }) {
+function PaidReference({ customer, fees }: { customer: Customer; fees: Fee[] }) {
   return (
     <Paper withBorder radius="sm">
       <Box p="md">
@@ -102,7 +103,8 @@ function PaidReference({ customer, fees }) {
 }
 
 export default function Step2Details() {
-  const { draft, customer, fees, total, setJustification, setRemark, setStep } = useRefund();
+  const { fees, total, setJustification, setRemark, setStep } = useRefund();
+  const { draft, customer } = useActiveDraft();
   const canContinue = step2Valid(draft);
   const justOk = justificationValid(draft);
   const remarkOk = remarkValid(draft);
@@ -152,13 +154,14 @@ export default function Step2Details() {
             required
             data={JUSTIFICATIONS}
             value={draft.justification.code}
-            onChange={(code) => setJustification({ code })}
+            // Select returns a string; its options are the justification codes.
+            onChange={(code) => setJustification({ code: code as JustificationCode | null })}
             maw={320}
           />
           {/* The definition is recorded with the request, so show what the user is choosing. */}
           {draft.justification.code && (
             <Text fz="sm" c="dimmed" className="readable" mt={-4}>
-              Definition: {justificationDefinition(draft.justification)}
+              Definition: {justificationDefinition({ code: draft.justification.code })}
             </Text>
           )}
           {/* Required on every request, whatever the justification; for "Other" it is also where

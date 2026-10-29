@@ -10,7 +10,7 @@ backend, no auth. Anything the backend would own is marked in code comments.
 
 ## Stack
 
-- [Vite](https://vitejs.dev) + React 18
+- [Vite](https://vitejs.dev) + React 18, written in TypeScript (strict)
 - [Mantine 7](https://mantine.dev) for UI components
 - `jspdf` + `jspdf-autotable` and `docx` for the client-side export stand-ins
 
@@ -18,8 +18,22 @@ backend, no auth. Anything the backend would own is marked in code comments.
 
 ```bash
 npm install
-npm run dev
+npm run dev        # local server with hot reload
+npm run typecheck  # type check only
+npm run build      # type check, then a production build; a type error fails the build
 ```
+
+## Where things live
+
+- `src/types.ts` — the data contract: every shape the backend supplies, with a note on each
+  field. The UI, the exports and the data checks are all written against it.
+- `src/data/api.ts` — the one place the UI gets data. Each function is implemented against the
+  mock data today; connecting real services means replacing the body of each one.
+- `src/data/mockData.ts` — the mock customers, fees, people and requests, typed against the
+  contract.
+- `src/state/` — the request in progress (`draft.ts`) and the app's state (`RefundContext.tsx`).
+- `src/components/` — the screens and the shared components they're built from.
+- `src/lib/` — pure helpers: formatting, selectors over the draft and requests, exports.
 
 Sample customer IDs for the search: `C-104822`, `C-220917`, `C-301550` (click one under the
 search field to look it up). `C-104822` is the richest walkthrough — it covers a lump-sum PayPal

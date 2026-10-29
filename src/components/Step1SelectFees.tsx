@@ -14,7 +14,8 @@ import {
   UnstyledButton,
   VisuallyHidden,
 } from '@mantine/core';
-import { useRefund } from '../state/RefundContext';
+import type { Fee, RefundRequest } from '../types';
+import { useActiveDraft, useRefund } from '../state/RefundContext';
 import { STATUS_META } from '../theme';
 import { fmtDate } from '../lib/format';
 import { accountLine, feeRequest } from '../lib/selectors';
@@ -33,8 +34,9 @@ import RequestModal from './RequestModal';
 const COLUMNS = 6;
 
 export default function Step1SelectFees() {
-  const { customer, draft, requests, toggleFee, toggleCollapsed, setStep } = useRefund();
-  const [openId, setOpenId] = useState(null);
+  const { requests, toggleFee, toggleCollapsed, setStep } = useRefund();
+  const { draft, customer } = useActiveDraft();
+  const [openId, setOpenId] = useState<string | null>(null);
   const [showLocked, setShowLocked] = useState(false);
   const selectedCount = draft.selected.size;
   const eligibleCents = customer.fees
@@ -47,11 +49,11 @@ export default function Step1SelectFees() {
   const available = withPrior.filter((r) => !r.prior);
   const locked = withPrior.filter((r) => r.prior);
 
-  const renderFee = ({ fee, prior }) => {
+  const renderFee = ({ fee, prior }: { fee: Fee; prior: RefundRequest | null }) => {
     const isSelected = draft.selected.has(fee.id);
-    const isOpen = fee.items && !draft.collapsed.has(fee.id);
+    const isOpen = Boolean(fee.items) && !draft.collapsed.has(fee.id);
     const checkboxId = `include-${fee.id}`;
-    const priorRefund = prior?.fees.find((f) => f.id === fee.id).refund;
+    const priorRefund = prior?.fees.find((f) => f.id === fee.id)?.refund;
     return [
       <Table.Tr key={fee.id} bg={isSelected ? 'brand.0' : undefined} c={prior ? 'dimmed' : undefined}>
         <Table.Td>
@@ -135,14 +137,14 @@ export default function Step1SelectFees() {
         </Table.Td>
         <Table.Td ta="right" style={{ whiteSpace: 'nowrap' }}>
           <Amount cents={fee.cents} />
-          {prior && priorRefund < fee.cents && (
+          {prior && priorRefund !== undefined && priorRefund < fee.cents && (
             <Text inherit>
               <Amount cents={priorRefund} /> requested
             </Text>
           )}
         </Table.Td>
       </Table.Tr>,
-      ...(isOpen
+      ...(isOpen && fee.items
         ? fee.items.map((item, i) => (
             <Table.Tr key={`${fee.id}-item-${i}`}>
               <Table.Td />
@@ -268,7 +270,7 @@ export default function Step1SelectFees() {
 
 // Status labels are title case on their own ("Under OCFO Review"); mid-sentence they're lowercase
 // except for acronyms ("under OCFO review").
-const inSentence = (s) =>
+const inSentence = (s: string) =>
   s
     .split(' ')
     .map((w) => (w === w.toUpperCase() ? w : w.toLowerCase()))

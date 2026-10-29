@@ -1,5 +1,9 @@
-import { Box, List, Table, Text, Title, VisuallyHidden } from '@mantine/core';
-import { CUSTOMERS, JUSTIFICATION_LABEL } from '../data/mockData';
+import type { ReactNode } from 'react';
+import { Box, List, Table, Text, Title, VisuallyHidden, type TitleOrder } from '@mantine/core';
+import type { RefundRequest } from '../types';
+import type { PendingRequest } from '../lib/selectors';
+import { customerById } from '../data/api';
+import { JUSTIFICATION_LABEL } from '../data/mockData';
 import { fmtDate, fmtDateTime } from '../lib/format';
 import {
   remitterNotes,
@@ -20,18 +24,26 @@ export default function RequestRecord({
   title = 'Submitted Request',
   headingOrder = 3,
   footer,
+}: {
+  /** A submitted request, or the draft's preview of one (Step 3). */
+  request: RefundRequest | PendingRequest;
+  title?: string;
+  headingOrder?: TitleOrder;
+  /** Replaces the certification line; Step 3 puts the certification checkbox here. */
+  footer?: ReactNode;
 }) {
-  const c = CUSTOMERS[request.customer];
+  const c = customerById(request.customer);
+  const submitted = 'id' in request ? request : null;
   const notes = remitterNotes(
     request.fees,
     (f) => f.remitterSource,
     (f) => f.recordRemitter
   );
   const { code } = request.justification;
-  const headingId = `record-heading-${request.id || 'draft'}`;
+  const headingId = `record-heading-${submitted?.id ?? 'draft'}`;
   // Sections inside the record are headings one level below its title, so screen reader users
   // can jump between them.
-  const sectionHeading = `h${headingOrder + 1}`;
+  const sectionHeading = `h${Math.min(headingOrder + 1, 6)}` as 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
 
   return (
     <section className="form-record" aria-labelledby={headingId}>
@@ -171,7 +183,7 @@ export default function RequestRecord({
             <FieldLabel component={sectionHeading}>Certification</FieldLabel>
             <Text fz="sm">
               Certified and submitted by {request.submittedBy.name} on{' '}
-              {fmtDateTime(request.certifiedAt)}. Routed to the Office of the Chief Financial
+              {fmtDateTime(submitted?.certifiedAt)}. Routed to the Office of the Chief Financial
               Officer (OCFO), Refund Review.
             </Text>
           </>

@@ -9,7 +9,10 @@ import { theme, cssVariablesResolver } from './theme';
 import { RefundProvider } from './state/RefundContext';
 import App from './App';
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+const root = document.getElementById('root');
+if (!root) throw new Error('index.html has no #root element.');
+
+ReactDOM.createRoot(root).render(
   <React.StrictMode>
     <MantineProvider theme={theme} cssVariablesResolver={cssVariablesResolver} forceColorScheme="light">
       <Notifications position="bottom-center" />
