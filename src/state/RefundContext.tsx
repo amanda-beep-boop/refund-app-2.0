@@ -1,13 +1,8 @@
-import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { notifications } from '@mantine/notifications';
 import type { Customer, Fee, JustificationCode, Person, RefundRequest } from '../types';
 import type { AmountState, Draft, RemitterState } from './draft';
-import {
-  allocateRequestId,
-  getSignedInUser,
-  listRequests,
-  submitRequest,
-} from '../data/api';
+import { getSignedInUser, listRequests, submitRequest } from '../data/api';
 import { ROLE_LABEL, buildNotifications } from '../data/mockData';
 import { nowISO } from '../lib/format';
 import {
@@ -20,14 +15,21 @@ import {
 } from '../lib/selectors';
 
 export type View = 'home' | 'flow' | 'confirm';
+/** Where a call to a service stands. */
+export type LoadStatus = 'loading' | 'ready' | 'error';
 
 export interface RefundState {
   currentUser: Person;
   requests: RefundRequest[];
+  /** Whether the office's requests have loaded. */
+  requestsStatus: LoadStatus;
+  reloadRequests: () => void;
   view: View;
   step: number;
   draft: Draft | null;
   sending: boolean;
+  /** The last submission failed; the draft is unchanged. Cleared when submission is retried. */
+  submitError: boolean;
   lastSubmitted: RefundRequest | null;
   customer: Customer | null;
   fees: Fee[];
@@ -58,7 +60,8 @@ const withDraft = (fn: (d: Draft) => Draft) => (d: Draft | null) => (d ? fn(d) :
 export function RefundProvider({ children }: { children: ReactNode }) {
   // In production the auth system supplies the signed-in user (name, email, role, office).
   const [currentUser, setCurrentUser] = useState<Person>(getSignedInUser);
-  const [requests, setRequests] = useState<RefundRequest[]>(listRequests);
+  const [requests, setRequests] = useState<RefundRequest[]>([]);
+  const [requestsStatus, setRequestsStatus] = useState<LoadStatus>('loading');
   const [view, setView] = useState<View>('home');
   const [step, setStep] = useState(1);
   // One draft at a time per office (a business rule): it must be submitted or discarded before
@@ -67,6 +70,19 @@ export function RefundProvider({ children }: { children: ReactNode }) {
   const [draft, setDraft] = useState<Draft | null>(null);
   const [lastSubmittedId, setLastSubmittedId] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
+  const [submitError, setSubmitError] = useState(false);
+
+  // The office's requests load when the app opens; Reload Requests runs this again.
+  const reloadRequests = useCallback(() => {
+    setRequestsStatus('loading');
+    listRequests()
+      .then((loaded) => {
+        setRequests(loaded);
+        setRequestsStatus('ready');
+      })
+      .catch(() => setRequestsStatus('error'));
+  }, []);
+  useEffect(reloadRequests, [reloadRequests]);
 
   const patchDraft = (patch: Partial<Draft>) => setDraft(withDraft((d) => ({ ...d, ...patch })));
 
@@ -183,38 +199,42 @@ export function RefundProvider({ children }: { children: ReactNode }) {
   const submit = () => {
     if (!draft || !canSubmit(currentUser)) return;
     const d = draft;
+    setSubmitError(false);
     setSending(true);
-    // Simulated latency of the digital submission to the OCFO.
-    setTimeout(() => {
-      const at = nowISO();
-      const request: RefundRequest = {
-        ...draftRequest(d, currentUser),
-        id: allocateRequestId(),
-        submittedAt: at,
-        status: 'submitted',
-        statusDate: at.slice(0, 10),
-        certifiedAt: at,
-        timeline: [{ status: 'submitted', at }],
-        notifications: buildNotifications(at, currentUser, d.createdBy),
-      };
-      const stored = submitRequest(request);
-      setRequests((rs) => [...rs, stored]);
-      setLastSubmittedId(stored.id);
-      setSending(false);
-      setStep(1);
-      setView('confirm');
-      setDraft(null); // draft is consumed
-    }, 900);
+    const at = nowISO();
+    const request: Omit<RefundRequest, 'id'> = {
+      ...draftRequest(d, currentUser),
+      submittedAt: at,
+      status: 'submitted',
+      statusDate: at.slice(0, 10),
+      certifiedAt: at,
+      timeline: [{ status: 'submitted', at }],
+      notifications: buildNotifications(at, currentUser, d.createdBy),
+    };
+    submitRequest(request)
+      .then((stored) => {
+        setRequests((rs) => [...rs, stored]);
+        setLastSubmittedId(stored.id);
+        setStep(1);
+        setView('confirm');
+        setDraft(null); // draft is consumed
+      })
+      // The draft, including the certification, is untouched so the Supervisor can try again.
+      .catch(() => setSubmitError(true))
+      .finally(() => setSending(false));
   };
 
   const value = useMemo<RefundState>(
     () => ({
       currentUser,
       requests,
+      requestsStatus,
+      reloadRequests,
       view,
       step,
       draft,
       sending,
+      submitError,
       lastSubmitted: requests.find((r) => r.id === lastSubmittedId) || null,
       customer: draftCustomer(draft),
       fees: selectedFees(draft),
@@ -236,7 +256,7 @@ export function RefundProvider({ children }: { children: ReactNode }) {
       setCertified: (certified) => patchDraft({ certified }),
       submit,
     }),
-    [currentUser, requests, view, step, draft, sending, lastSubmittedId]
+    [currentUser, requests, requestsStatus, reloadRequests, view, step, draft, sending, submitError, lastSubmittedId]
   );
 
   return <RefundContext.Provider value={value}>{children}</RefundContext.Provider>;

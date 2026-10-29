@@ -21,7 +21,7 @@ import { customerById } from '../data/api';
 import { STATUS_META } from '../theme';
 import { fmtDate } from '../lib/format';
 import { downloadHistoryCsv, downloadHistoryPdf, downloadHistoryDocx, type ExportRow } from '../lib/exports';
-import { StatusBadge, Mono, Amount, Chevron, LockIcon } from '../ui';
+import { StatusBadge, Mono, Amount, Chevron, EmptyState, ErrorNotice, LockIcon, TableSkeleton } from '../ui';
 import RequestModal from './RequestModal';
 
 // A submitted request's row, or the office's draft (never exported).
@@ -52,7 +52,7 @@ const COLUMNS: { key: SortKey; label: string; align?: 'right' }[] = [
 ];
 
 export default function HistoryTable() {
-  const { currentUser, requests, draft, resumeDraft } = useRefund();
+  const { currentUser, requests, requestsStatus, reloadRequests, draft, resumeDraft } = useRefund();
   const [filters, setFilters] = useState<{ status: Status | 'all'; from: string; to: string; q: string }>({
     status: 'all',
     from: '',
@@ -126,6 +126,11 @@ export default function HistoryTable() {
   const exportRows = selectedRows.length ? selectedRows : exportable;
   const allSelected = exportable.length > 0 && selectedRows.length === exportable.length;
   const anyFilter = filters.status !== 'all' || filters.from || filters.to || filters.q;
+  const loading = requestsStatus === 'loading';
+  const failed = requestsStatus === 'error';
+  // No history at all (and no draft): nothing to filter, so the controls stay out of the way.
+  const empty = requestsStatus === 'ready' && allRows.length === 0;
+  const columnCount = COLUMNS.length + (draft ? 2 : 1);
 
   const toggleSort = (key: SortKey) =>
     setSort((s) =>
@@ -156,6 +161,12 @@ export default function HistoryTable() {
         </Text>
       </div>
 
+      {empty ? (
+        <EmptyState title="No refund requests yet">
+          Requests from the {currentUser.office} will appear here once one is submitted.
+        </EmptyState>
+      ) : (
+        <>
       <Group px="md" pb="md" gap="sm" align="flex-end" wrap="wrap">
         <Select
           label="Status"
@@ -208,18 +219,26 @@ export default function HistoryTable() {
         style={{ borderTop: '1px solid var(--border-subtle)' }}
       >
         <Text fz="sm" c="dimmed" role="status" aria-live="polite">
-          Showing{' '}
-          <Text component="span" fw={600} c="dark">
-            {rows.length}
-          </Text>{' '}
-          of {allRows.length}
-          {selectedRows.length > 0 && (
+          {loading ? (
+            'Loading requests…'
+          ) : failed ? (
+            'Requests couldn\'t be loaded'
+          ) : (
             <>
-              {' · '}
+              Showing{' '}
               <Text component="span" fw={600} c="dark">
-                {selectedRows.length}
+                {rows.length}
               </Text>{' '}
-              selected
+              of {allRows.length}
+              {selectedRows.length > 0 && (
+                <>
+                  {' · '}
+                  <Text component="span" fw={600} c="dark">
+                    {selectedRows.length}
+                  </Text>{' '}
+                  selected
+                </>
+              )}
             </>
           )}
         </Text>
@@ -305,12 +324,26 @@ export default function HistoryTable() {
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-            {rows.length === 0 && (
+            {loading && <TableSkeleton widths={[20, 110, 120, 110, 90, 130, 90, 60, ...(draft ? [70] : [])]} />}
+            {failed && (
               <Table.Tr>
-                <Table.Td colSpan={COLUMNS.length + (draft ? 2 : 1)}>
-                  <Text ta="center" c="dimmed" py="lg">
-                    {anyFilter ? 'No requests match these filters.' : 'No refund requests yet.'}
-                  </Text>
+                <Table.Td colSpan={columnCount} p="md">
+                  <ErrorNotice
+                    title="Couldn't load the office's requests"
+                    action="Reload Requests"
+                    onAction={reloadRequests}
+                  >
+                    The refund-request service didn't respond. You can still start a new request.
+                  </ErrorNotice>
+                </Table.Td>
+              </Table.Tr>
+            )}
+            {!loading && !failed && rows.length === 0 && (
+              <Table.Tr>
+                <Table.Td colSpan={columnCount}>
+                  <EmptyState title="No requests match these filters">
+                    Clear the filters to see every request from the {currentUser.office}.
+                  </EmptyState>
                 </Table.Td>
               </Table.Tr>
             )}
@@ -377,6 +410,8 @@ export default function HistoryTable() {
           </Table.Tbody>
         </Table>
       </Table.ScrollContainer>
+        </>
+      )}
 
       <RequestModal requestId={openId} onClose={() => setOpenId(null)} />
     </Paper>

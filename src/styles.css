@@ -252,3 +252,10 @@ dd {
 h1[tabindex='-1']:focus {
   outline: none;
 }
+
+/* Loading placeholders stop shimmering for anyone who has asked for reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  .mantine-Skeleton-root::after {
+    animation: none;
+  }
+}

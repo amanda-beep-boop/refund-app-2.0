@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   Anchor,
+  Box,
   Button,
   Card,
   Group,
@@ -16,22 +17,43 @@ import type { FormEvent } from 'react';
 import type { Customer } from '../types';
 import { findCustomer, listSampleCustomerIds } from '../data/api';
 import { feeRequest } from '../lib/selectors';
-import { Mono, Chevron, CustomerSummary } from '../ui';
+import { Mono, Chevron, CustomerSummary, ErrorNotice, LoadingNotice } from '../ui';
 
 const SAMPLE_IDS = listSampleCustomerIds();
+
+// Where a lookup stands: nothing searched yet, waiting, found, no such customer, or the call failed.
+type Lookup =
+  | { status: 'idle' }
+  | { status: 'loading'; id: string }
+  | { status: 'found'; customer: Customer }
+  | { status: 'none'; id: string }
+  | { status: 'error'; id: string };
 
 export default function CustomerSearch() {
   const { startDraft, requests } = useRefund();
   const [query, setQuery] = useState('');
-  // undefined = no search yet; null = no match; object = found customer
-  const [result, setResult] = useState<Customer | null | undefined>(undefined);
-  const [searched, setSearched] = useState('');
+  const [lookup, setLookup] = useState<Lookup>({ status: 'idle' });
+  // Only the latest search may set the outcome, if an earlier one is still in flight.
+  const latest = useRef(0);
 
   const lookUp = (raw: string) => {
     const id = raw.trim().toUpperCase();
-    setSearched(id);
-    setResult(id ? findCustomer(id) : undefined);
+    const seq = ++latest.current;
+    if (!id) {
+      setLookup({ status: 'idle' });
+      return;
+    }
+    setLookup({ status: 'loading', id });
+    findCustomer(id)
+      .then((customer) => {
+        if (seq !== latest.current) return;
+        setLookup(customer ? { status: 'found', customer } : { status: 'none', id });
+      })
+      .catch(() => {
+        if (seq === latest.current) setLookup({ status: 'error', id });
+      });
   };
+  const result = lookup.status === 'found' ? lookup.customer : null;
   const search = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     lookUp(query);
@@ -82,14 +104,29 @@ export default function CustomerSearch() {
         ))}
       </Text>
 
+      {lookup.status === 'loading' && (
+        <Box mt="md">
+          <LoadingNotice>Looking up {lookup.id}…</LoadingNotice>
+        </Box>
+      )}
+      {lookup.status === 'error' && (
+        <Box mt="md">
+          <ErrorNotice
+            title="Couldn't look up the customer"
+            action="Search Again"
+            onAction={() => lookUp(lookup.id)}
+          >
+            The payment system didn't respond. Nothing was changed.
+          </ErrorNotice>
+        </Box>
+      )}
       {/* Announces the search outcome to screen readers. */}
       <div role="status" aria-live="polite">
-        {result === null && (
-          <Paper p="md" mt="md" style={{ borderStyle: 'dashed' }}>
-            <Text>
-              No account matches <Mono>{searched}</Mono>. Check the ID and try again.
-            </Text>
-          </Paper>
+        {lookup.status === 'none' && (
+          <Text fz="sm" c="dimmed" mt="md">
+            No account matches <Mono fz={13} c="inherit">{lookup.id}</Mono>. Check the ID and search
+            again.
+          </Text>
         )}
         {result && (
           <VisuallyHidden>

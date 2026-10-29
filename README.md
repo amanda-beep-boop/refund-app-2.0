@@ -24,6 +24,10 @@ npm run check      # type check, then the data checks (scripts/check-data.ts)
 npm run build      # the checks, then a production build; a failed check fails the build
 ```
 
+Calls to services return promises with no artificial delay. To see the loading and error
+states while developing, add `?latency=1500` (every call takes 1.5 s) or `?fail=customer`,
+`?fail=requests` or `?fail=submit` to the URL; `?empty=requests` shows an office with no history.
+
 ## What you replace
 
 The POC runs on mock data and a stand-in for sign-in. These are the places that change when it
@@ -33,7 +37,7 @@ is connected to real services; if something isn't in this table, it shouldn't ne
 | --- | --- | --- |
 | Sign-in: the user's name, email, role and office | The body of `getSignedInUser`. Remove `listDemoAccounts` and the account switch in the account menu. | `src/data/api.ts`, `src/components/ProfileMenu.tsx` |
 | Customers and their paid fees | The bodies of `findCustomer` and `customerById`. Remove `listSampleCustomerIds` and the sample links under the search field. | `src/data/api.ts`, `src/components/CustomerSearch.tsx` |
-| Refund requests | The bodies of `listRequests`, `allocateRequestId` and `submitRequest`. The service assigns IDs at submission. | `src/data/api.ts` |
+| Refund requests | The bodies of `listRequests` and `submitRequest`. The service assigns IDs at submission. | `src/data/api.ts` |
 | Justifications and their definitions | The body of `listJustifications`; the pending definitions in `JUSTIFICATIONS`. | `src/data/api.ts`, `src/data/mockData.ts` |
 | E-Note notifications | `buildNotifications` becomes the service's record of what it sent. | `src/data/mockData.ts`, `src/state/RefundContext.tsx` |
 | The certification wording | The checkbox statement and the "Certified and submitted by" line, once counsel supplies them. | `src/components/Step3Review.tsx`, `src/components/RequestRecord.tsx`, `src/lib/exports.ts` |

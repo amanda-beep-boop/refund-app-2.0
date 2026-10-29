@@ -40,6 +40,9 @@ ships.
 | The top of a card | `CardHeader` | A `Title` and `Text` of your own |
 | An icon | `Icons` (`Chevron`, `LockIcon`, …) | An icon library |
 | A card | Mantine `Paper` | Styling a border and radius by hand |
+| Waiting on a result or a table | `LoadingNotice`, `TableSkeleton` | A full-page spinner |
+| Nothing to show | `EmptyState` | An empty table, a dashed box |
+| A call that failed | `ErrorNotice` | A toast, an alert banner |
 
 Library components take props only and never read app state; components that do (such as
 the draft's Discard button) live in `src/components`.
@@ -71,6 +74,29 @@ the draft's Discard button) live in `src/components`.
 - A disabled primary button always has a gray "To continue: …" hint beside it listing what's
   left.
 - A row that can't be selected shows a lock icon, not a disabled checkbox.
+
+## Loading, empty and error states
+
+Every call to a service can be slow or fail, and a list can be empty. Each case has one
+pattern, from `src/ui/States.tsx`, shown in the exact spot the content will occupy. The page's
+structure stays put; there are no full-page spinners.
+
+- **Loading:** `LoadingNotice` (a small spinner and a sentence) for a single result;
+  `TableSkeleton` (shimmering rows under the real column headers) for a table. Loading shows
+  only after a short delay, so fast responses never flicker. The shimmer stops under reduced
+  motion, and a live region announces the wait. A button that starts a write shows its own
+  loading state instead.
+- **Empty:** `EmptyState`, plain text with room around it, in the office's voice. "No history
+  yet" hides the filters, since there is nothing to filter; "no matches" keeps them.
+- **Error:** `ErrorNotice`, a white card with a red bar: what didn't happen, what it means, and
+  at most one action. It's inline, never a toast, and its copy always says what did *not* change
+  ("Nothing was sent to the OCFO, and the draft is unchanged"). The action names what it will
+  redo ("Search Again", "Reload Requests"); when the original button is the retry, there is no
+  action and the user's input, including a checked certification, is kept.
+
+In development, `?latency=1500` slows every call and `?fail=customer`, `?fail=requests` or
+`?fail=submit` makes that call fail, and `?empty=requests` shows an office with no history, so
+each state can be seen live.
 
 ## Text and casing
 

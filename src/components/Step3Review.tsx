@@ -1,7 +1,7 @@
 import { Button, Checkbox, Group, Stack, Text, VisuallyHidden } from '@mantine/core';
 import { useActiveDraft, useRefund } from '../state/RefundContext';
 import { canSubmit, draftRequest } from '../lib/selectors';
-import { Chevron, DisabledHint, FieldLabel } from '../ui';
+import { Chevron, DisabledHint, ErrorNotice, FieldLabel } from '../ui';
 import RequestRecord from './RequestRecord';
 
 // Previews the record the request will become. Certifying is the record's closing line, so the
@@ -9,7 +9,7 @@ import RequestRecord from './RequestRecord';
 // Only a Supervisor can certify and submit. Staff see why in that same spot, and save the draft
 // for a Supervisor to resume instead; there's no Submit button they could never use.
 export default function Step3Review() {
-  const { currentUser, sending, setCertified, setStep, submit, saveAndExit } = useRefund();
+  const { currentUser, sending, submitError, setCertified, setStep, submit, saveAndExit } = useRefund();
   const { draft } = useActiveDraft();
   const supervisor = canSubmit(currentUser);
 
@@ -55,6 +55,13 @@ export default function Step3Review() {
         }
       />
 
+      {/* No action in the notice: Submit to OCFO is the retry, and the certification stays checked. */}
+      {submitError && (
+        <ErrorNotice title="The request wasn't submitted">
+          Nothing was sent to the OCFO, and the draft is unchanged. Try again, or save the draft
+          and submit it later.
+        </ErrorNotice>
+      )}
       <Group justify="flex-end" align="flex-start">
         <Stack gap={4} align="flex-end">
           <Group gap="xs">

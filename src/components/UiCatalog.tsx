@@ -4,7 +4,7 @@
 //
 // It doubles as the accessibility test bed: every state is on one page, so contrast, focus and
 // screen reader behavior can be checked in one pass.
-import { Button, Group, Paper, Stack, Text, Title } from '@mantine/core';
+import { Button, Group, Paper, Stack, Table, Text, Title } from '@mantine/core';
 import type { Status } from '../types';
 import {
   Amount,
@@ -14,11 +14,14 @@ import {
   Chevron,
   CustomerSummary,
   DisabledHint,
+  EmptyState,
+  ErrorNotice,
   Field,
   FieldGroup,
   FieldLabel,
   IncompleteLabel,
   InfoIcon,
+  LoadingNotice,
   LockIcon,
   LumpSumAnnotation,
   MailIcon,
@@ -27,6 +30,7 @@ import {
   PageHeader,
   RemitterSourceAnnotation,
   StatusBadge,
+  TableSkeleton,
   WarningIcon,
 } from '../ui';
 
@@ -187,6 +191,38 @@ export default function UiCatalog() {
           <WarningIcon />
           <MailIcon />
         </Group>
+      </Entry>
+
+      <Entry
+        name="LoadingNotice, TableSkeleton, EmptyState, ErrorNotice"
+        rule="What a piece of the page shows while it waits, when there is nothing, and when a call fails; each in the spot the content will occupy. In development, ?latency=1500 and ?fail=customer|requests|submit show them live in the app."
+      >
+        <Stack gap="lg">
+          <LoadingNotice delay={0}>Looking up C-104822…</LoadingNotice>
+          <Paper>
+            <Table fz="sm" verticalSpacing="sm" horizontalSpacing="md">
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Th>Fee</Table.Th>
+                  <Table.Th>Paid On</Table.Th>
+                  <Table.Th ta="right">Amount</Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>
+                <TableSkeleton widths={[140, 90, 60]} rows={2} />
+              </Table.Tbody>
+            </Table>
+          </Paper>
+          <Paper>
+            <EmptyState title="No refund requests yet">Requests from the office will appear here once one is submitted.</EmptyState>
+          </Paper>
+          <ErrorNotice title="Couldn't look up the customer" action="Search Again">
+            The payment system didn't respond. Nothing was changed.
+          </ErrorNotice>
+          <ErrorNotice title="The request wasn't submitted">
+            Nothing was sent to the OCFO, and the draft is unchanged. Try again, or save the draft and submit it later.
+          </ErrorNotice>
+        </Stack>
       </Entry>
 
       <Entry
