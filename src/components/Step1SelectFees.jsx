@@ -117,7 +117,7 @@ export default function Step1SelectFees() {
                   >
                     {prior.id}
                   </Anchor>
-                  {prior.status !== 'approved' && ` (${lowerFirst(STATUS_META[prior.status].label)})`}
+                  {prior.status !== 'approved' && ` (${inSentence(STATUS_META[prior.status].label)})`}
                 </span>
               </Annotation>
             </Box>
@@ -166,7 +166,7 @@ export default function Step1SelectFees() {
       <Paper withBorder radius="sm">
         <Box p="md">
           <Title order={2} fz="lg">
-            Paid fees
+            Paid Fees
           </Title>
           <Text fz="sm" c="dimmed" mt={2}>
             Check each fee to include.
@@ -185,7 +185,7 @@ export default function Step1SelectFees() {
                 <Table.Th miw={240} w="38%">
                   Fee
                 </Table.Th>
-                <Table.Th>Paid on</Table.Th>
+                <Table.Th>Paid On</Table.Th>
                 <Table.Th>Payment</Table.Th>
                 <Table.Th ta="right">Amount</Table.Th>
               </Table.Tr>
@@ -223,7 +223,7 @@ export default function Step1SelectFees() {
                           style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}
                         >
                           <Chevron dir={showLocked ? 'down' : 'right'} />
-                          Already in a refund request ({locked.length})
+                          Already in a Refund Request ({locked.length})
                         </UnstyledButton>
                       </Title>
                       {showLocked && (
@@ -253,7 +253,7 @@ export default function Step1SelectFees() {
         </Text>
         <Stack gap={4} align="flex-end">
           <Button disabled={!selectedCount} onClick={() => setStep(2)} rightSection={<Chevron />}>
-            Continue to details
+            Continue to Details
           </Button>
           <DisabledHint items={selectedCount ? [] : ['select at least one fee']} />
         </Stack>
@@ -264,8 +264,13 @@ export default function Step1SelectFees() {
   );
 }
 
-// Status labels are title case on their own ("Under OCFO review"); mid-sentence they start lowercase.
-const lowerFirst = (s) => s.charAt(0).toLowerCase() + s.slice(1);
+// Status labels are title case on their own ("Under OCFO Review"); mid-sentence they're lowercase
+// except for acronyms ("under OCFO review").
+const inSentence = (s) =>
+  s
+    .split(' ')
+    .map((w) => (w === w.toUpperCase() ? w : w.toLowerCase()))
+    .join(' ');
 
 // The account a fee was paid from. Services such as PayPal are their own "bank", so only the
 // account (an email address) is shown for them. Numbers use non-breaking spaces so they never

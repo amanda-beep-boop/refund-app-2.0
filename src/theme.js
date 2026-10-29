@@ -122,7 +122,7 @@ export const cssVariablesResolver = (t) => {
 export const STATUS_META = {
   draft: { label: 'Draft', color: 'gray' },
   submitted: { label: 'Submitted to OCFO', color: 'blue' },
-  review: { label: 'Under OCFO review', color: 'yellow' },
+  review: { label: 'Under OCFO Review', color: 'yellow' },
   approved: { label: 'Approved', color: 'green' },
-  returned: { label: 'Returned for correction', color: 'red' },
+  returned: { label: 'Returned for Correction', color: 'red' },
 };

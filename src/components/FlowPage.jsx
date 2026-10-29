@@ -6,7 +6,7 @@ import Step1SelectFees from './Step1SelectFees';
 import Step2Details from './Step2Details';
 import Step3Review from './Step3Review';
 
-export const STEP_TITLES = ['Select fees', 'Confirm details', 'Review & submit'];
+export const STEP_TITLES = ['Select Fees', 'Confirm Details', 'Review & Submit'];
 
 export default function FlowPage() {
   const { step, customer, saveAndExit } = useRefund();
@@ -27,7 +27,7 @@ export default function FlowPage() {
           <Group gap="xs">
             <DiscardDraftButton />
             <Button size="sm" variant="default" onClick={saveAndExit}>
-              Save draft &amp; exit
+              Save Draft &amp; Exit
             </Button>
           </Group>
         </Group>

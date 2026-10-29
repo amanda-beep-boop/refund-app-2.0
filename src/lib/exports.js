@@ -46,10 +46,10 @@ const HEADERS = [
   'Request ID',
   'Customer',
   'Customer ID',
-  'Requested by',
-  'Date submitted',
+  'Requested By',
+  'Date Submitted',
   'Status',
-  'Status date',
+  'Status Date',
   'Amount',
 ];
 const AMOUNT_COL = HEADERS.indexOf('Amount');
@@ -187,7 +187,7 @@ export function downloadRequestPdf(request) {
   doc.setDrawColor(...RULE);
   doc.rect(M, y, inner, 26, 'FD');
   setText(12, 'bold');
-  doc.text('Submitted request', M + 10, y + 17);
+  doc.text('Submitted Request', M + 10, y + 17);
   y += 34;
 
   autoTable(doc, {
@@ -196,7 +196,7 @@ export function downloadRequestPdf(request) {
     theme: 'plain',
     styles: base,
     headStyles: labelStyle,
-    head: [['Customer', 'Requested by']],
+    head: [['Customer', 'Requested By']],
     body: [
       [
         `${c.name}\nCustomer ID ${c.id}\n${c.team}, ${c.position}`,
@@ -234,7 +234,7 @@ export function downloadRequestPdf(request) {
     headStyles: { ...labelStyle, ...ruled(0.75) },
     bodyStyles: ruled(0.5),
     footStyles: { fontStyle: 'bold', textColor: DARK },
-    head: [['Fee', 'Paid', 'Refund to', { content: 'Refund', styles: { halign: 'right' } }]],
+    head: [['Fee', 'Paid', 'Refund To', { content: 'Refund', styles: { halign: 'right' } }]],
     body: request.fees.map((f) => [
       `${f.desc}\nFee ID ${f.id}${f.items ? `\nLump sum of ${f.items.length} items` : ''}`,
       `${fmtDate(f.date)}\n${paidLabel(f)}`,
@@ -249,7 +249,7 @@ export function downloadRequestPdf(request) {
     ]),
     foot: [
       [
-        { content: 'Total refund requested', colSpan: 3, styles: { halign: 'right' } },
+        { content: 'Total Refund Requested', colSpan: 3, styles: { halign: 'right' } },
         { content: fmt(request.total), styles: { halign: 'right' } },
       ],
     ],
@@ -268,7 +268,7 @@ export function downloadRequestPdf(request) {
       theme: 'plain',
       styles: base,
       headStyles: labelStyle,
-      head: [['Remitter notes']],
+      head: [['Remitter Notes']],
       body: notes.map((n) => [`${n.feeId}: ${n.text}`]),
     });
 

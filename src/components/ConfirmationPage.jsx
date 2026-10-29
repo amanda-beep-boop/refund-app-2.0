@@ -16,7 +16,7 @@ export default function ConfirmationPage() {
   return (
     <Stack gap="lg">
       <Title order={1} id="page-heading" tabIndex={-1}>
-        Request submitted to the OCFO
+        Request Submitted to the OCFO
       </Title>
 
       <Paper withBorder radius="sm" p="lg">
@@ -53,9 +53,9 @@ export default function ConfirmationPage() {
         <NotificationList notifications={lastSubmitted.notifications} />
 
         <Group mt="lg" gap="sm">
-          <Button onClick={() => setModalOpen(true)}>View request details</Button>
+          <Button onClick={() => setModalOpen(true)}>View Request Details</Button>
           <Button variant="default" onClick={() => setView('home')}>
-            Back to refund requests
+            Back to Refund Requests
           </Button>
         </Group>
       </Paper>

@@ -35,7 +35,7 @@ export default function HomePage() {
             <Group gap="xs">
               <DiscardDraftButton />
               <Button size="sm" onClick={resumeDraft}>
-                Resume draft
+                Resume Draft
               </Button>
             </Group>
           </Group>

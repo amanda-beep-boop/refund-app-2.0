@@ -51,7 +51,7 @@ export const CUSTOMERS = {
     fees: [
       {
         id: 'F-87455',
-        desc: 'Inspection rescheduling fee',
+        desc: 'Inspection Rescheduling Fee',
         date: '2026-05-14',
         cents: 22000,
         bank: 'Truist',
@@ -67,7 +67,7 @@ export const CUSTOMERS = {
       },
       {
         id: 'F-88012',
-        desc: 'Annual filing fee',
+        desc: 'Annual Filing Fee',
         date: '2026-07-02',
         cents: 45000,
         bank: 'Truist',
@@ -83,7 +83,7 @@ export const CUSTOMERS = {
       },
       {
         id: 'F-87990',
-        desc: 'Expedited review fee',
+        desc: 'Expedited Review Fee',
         date: '2026-07-08',
         cents: 18000,
         bank: 'Truist',
@@ -99,7 +99,7 @@ export const CUSTOMERS = {
       },
       {
         id: 'F-88107',
-        desc: 'Late processing surcharge',
+        desc: 'Late Processing Surcharge',
         date: '2026-07-19',
         cents: 7500,
         bank: 'Truist',
@@ -115,7 +115,7 @@ export const CUSTOMERS = {
       },
       {
         id: 'F-88230',
-        desc: 'Q3 permit bundle',
+        desc: 'Q3 Permit Bundle',
         date: '2026-08-05',
         cents: 124000,
         bank: 'PayPal',
@@ -124,9 +124,9 @@ export const CUSTOMERS = {
         card: '—',
         instrument: 'PayPal (m.ortega@mta.example)',
         items: [
-          { desc: 'Vehicle permit renewal ×4', cents: 80000 },
-          { desc: 'Inspection scheduling fee', cents: 24000 },
-          { desc: 'Expedite fee', cents: 20000 },
+          { desc: 'Vehicle Permit Renewal ×4', cents: 80000 },
+          { desc: 'Inspection Scheduling Fee', cents: 24000 },
+          { desc: 'Expedite Fee', cents: 20000 },
         ],
         remitter: {
           name: 'Marisol Ortega',
@@ -136,7 +136,7 @@ export const CUSTOMERS = {
       },
       {
         id: 'F-88311',
-        desc: 'Duplicate certificate fee',
+        desc: 'Duplicate Certificate Fee',
         date: '2026-08-22',
         cents: 3500,
         bank: 'Capital One',
@@ -157,7 +157,7 @@ export const CUSTOMERS = {
     fees: [
       {
         id: 'F-89870',
-        desc: 'Field reservation deposit (spring)',
+        desc: 'Field Reservation Deposit (Spring)',
         date: '2026-04-02',
         cents: 30000,
         bank: 'Navy Federal',
@@ -173,7 +173,7 @@ export const CUSTOMERS = {
       },
       {
         id: 'F-90411',
-        desc: 'Field reservation deposit',
+        desc: 'Field Reservation Deposit',
         date: '2026-06-11',
         cents: 30000,
         bank: 'Navy Federal',
@@ -189,7 +189,7 @@ export const CUSTOMERS = {
       },
       {
         id: 'F-90520',
-        desc: 'Shared event costs',
+        desc: 'Shared Event Costs',
         date: '2026-06-28',
         cents: 51250,
         bank: 'Splitwise',
@@ -198,9 +198,9 @@ export const CUSTOMERS = {
         card: '—',
         instrument: 'Splitwise (d.achterberg)',
         items: [
-          { desc: 'Tent rental share', cents: 21250 },
-          { desc: 'Portable restroom share', cents: 18000 },
-          { desc: 'Cleanup crew share', cents: 12000 },
+          { desc: 'Tent Rental Share', cents: 21250 },
+          { desc: 'Portable Restroom Share', cents: 18000 },
+          { desc: 'Cleanup Crew Share', cents: 12000 },
         ],
         remitter: {
           name: 'Devin Achterberg',
@@ -210,7 +210,7 @@ export const CUSTOMERS = {
       },
       {
         id: 'F-89901',
-        desc: 'Vendor badge fee',
+        desc: 'Vendor Badge Fee',
         date: '2026-06-30',
         cents: 14500,
         bank: 'Navy Federal',
@@ -226,7 +226,7 @@ export const CUSTOMERS = {
       },
       {
         id: 'F-90588',
-        desc: 'Key deposit',
+        desc: 'Key Deposit',
         date: '2026-08-01',
         cents: 6000,
         bank: 'Navy Federal',
@@ -251,7 +251,7 @@ export const CUSTOMERS = {
     fees: [
       {
         id: 'F-90877',
-        desc: 'Application processing fee (2025 cycle)',
+        desc: 'Application Processing Fee (2025 Cycle)',
         date: '2026-05-15',
         cents: 12000,
         bank: 'Wells Fargo',
@@ -263,7 +263,7 @@ export const CUSTOMERS = {
       },
       {
         id: 'F-91002',
-        desc: 'Application processing fee',
+        desc: 'Application Processing Fee',
         date: '2026-09-03',
         cents: 12000,
         bank: 'Wells Fargo',
@@ -305,7 +305,7 @@ export const SEED_REQUESTS = [
     fees: [
       {
         id: 'F-89870',
-        desc: 'Field reservation deposit (spring)',
+        desc: 'Field Reservation Deposit (Spring)',
         date: '2026-04-02',
         cents: 30000,
         refund: 30000,
@@ -344,7 +344,7 @@ export const SEED_REQUESTS = [
     fees: [
       {
         id: 'F-87455',
-        desc: 'Inspection rescheduling fee',
+        desc: 'Inspection Rescheduling Fee',
         date: '2026-05-14',
         cents: 22000,
         refund: 22000,
@@ -383,7 +383,7 @@ export const SEED_REQUESTS = [
     fees: [
       {
         id: 'F-89901',
-        desc: 'Vendor badge fee',
+        desc: 'Vendor Badge Fee',
         date: '2026-06-30',
         cents: 14500,
         refund: 9500,
@@ -421,7 +421,7 @@ export const SEED_REQUESTS = [
     fees: [
       {
         id: 'F-87990',
-        desc: 'Expedited review fee',
+        desc: 'Expedited Review Fee',
         date: '2026-07-08',
         cents: 18000,
         refund: 18000,
@@ -463,7 +463,7 @@ export const SEED_REQUESTS = [
     fees: [
       {
         id: 'F-90877',
-        desc: 'Application processing fee (2025 cycle)',
+        desc: 'Application Processing Fee (2025 Cycle)',
         date: '2026-05-15',
         cents: 12000,
         refund: 12000,
@@ -503,7 +503,7 @@ export const SEED_REQUESTS = [
     fees: [
       {
         id: 'F-90588',
-        desc: 'Key deposit',
+        desc: 'Key Deposit',
         date: '2026-08-01',
         cents: 6000,
         refund: 6000,

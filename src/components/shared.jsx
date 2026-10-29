@@ -165,19 +165,19 @@ export const DiscardDraftButton = ({ size = 'sm' }) => {
   return (
     <>
       <Button size={size} variant="subtle" color="red" onClick={() => setOpen(true)}>
-        Discard draft
+        Discard Draft
       </Button>
       <Modal
         opened={open}
         onClose={() => setOpen(false)}
-        title="Discard this draft?"
+        title="Discard This Draft?"
         centered
         closeButtonProps={{ 'aria-label': 'Close' }}
       >
         <Text>The fees, amounts and details you've entered will be deleted. This can't be undone.</Text>
         <Group justify="flex-end" mt="lg" gap="xs">
           <Button variant="default" onClick={() => setOpen(false)} data-autofocus>
-            Keep draft
+            Keep Draft
           </Button>
           <Button
             color="red"
@@ -186,7 +186,7 @@ export const DiscardDraftButton = ({ size = 'sm' }) => {
               discardDraft();
             }}
           >
-            Discard draft
+            Discard Draft
           </Button>
         </Group>
       </Modal>

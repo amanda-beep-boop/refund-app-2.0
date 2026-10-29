@@ -30,14 +30,14 @@ shows the most fees already in a request (approved, under review, submitted, par
 
 1. **Landing page** — every request submitted by the analyst's office, with who requested
    it (sort, filter, select, download as CSV/Word/PDF). Newest first by default, with a draft
-   in progress at the top. "Start a new request" sits above the table. One draft at a time.
+   in progress at the top. "Start a New Refund Request" sits above the table. One draft at a time.
    Request IDs open the request record.
-2. **Select fees** — every paid fee, with checkbox selection; lump-sum payments (PayPal,
+2. **Select Fees** — every paid fee, with checkbox selection; lump-sum payments (PayPal,
    Splitwise) expanded by default, selectable only as a whole. Fees already in a request
-   (any status) can't be requested twice; they sit in a collapsed "Already in a refund
-   request (n)" group at the bottom of the table, read-only, each linking to its request.
+   (any status) can't be requested twice; they sit in a collapsed "Already in a Refund
+   Request (n)" group at the bottom of the table, read-only, each linking to its request.
    (Open question for the business: keep this group, or omit these fees.)
-3. **Confirm details** — per-fee card with full/partial refund amount and the remitter from
+3. **Confirm Details** — per-fee card with full/partial refund amount and the remitter from
    the payment record. Partial starts empty and must be less than the fee (refunding all of it
    is Full). Warnings appear only for real problems (an invalid amount, a remitter field left
    empty), not for fields that haven't been filled in yet; the hint by the disabled Continue
@@ -45,7 +45,7 @@ shows the most fees already in a request (approved, under review, submitted, par
    entered when the record has none. One request-level justification
    (Processing Error, Clock Expired, Case Rejected or Other) and a required Requester Remark: a
    short summary of what is being refunded and why.
-4. **Review & submit** — a preview of the exact record the OCFO will receive, with the legal
+4. **Review & Submit** — a preview of the exact record the OCFO will receive, with the legal
    certification (placeholder wording) as its closing line; simulated digital submission.
 5. **Confirmation** — permanent request ID, the E-Note emails sent (to the submitter and the
    OCFO; remitters are never notified), and the new row in the history table as "Submitted
@@ -58,50 +58,10 @@ shows the most fees already in a request (approved, under review, submitted, par
    status is pinned at the top and links to Activity. The PDF download mirrors the record
    using the same wording.
 
-### Design system notes
+## Design guide
 
-- One secondary gray (`c="dimmed"`) for labels, details, hints, table headers and disabled
-  button text (so a disabled action stays readable).
-- Colors live as semantic tokens in `src/theme.js` (`--surface-*`, `--border-*`, `--text-*`);
-  components reference the token, never a hex value.
-- A filled pill (`StatusBadge`) is reserved for workflow status. Flags about data use
-  `Annotation`: an icon plus text with no fill, so they can't be mistaken for buttons
-  (neutral gray, or amber for anything the analyst should check).
-- Surfaces: dark blue nav bar, near-white canvas, white cards with gray borders, gray inset for
-  table headers and nested rows.
-  Light blue (`brand.0`) means one thing only: a checked row, in any table.
-- Amber and red mean something is wrong, never just "not filled in yet." Required fields that
-  haven't been started stay neutral; the gray "To continue: …" hint by a disabled button lists
-  what's left.
-- A row that can't be selected shows a lock icon, not a disabled checkbox.
-- Links inside a sentence or gray text are always underlined (`underline="always"`); links that
-  stand alone (nav, a table cell, a link under its own heading) underline on hover.
-
-## Accessibility testing (Section 508 / WCAG 2.0 AA)
-
-Tab moves only between things you can act on. Content is read by scrolling (sighted keyboard
-users) or with screen reader reading commands, so static text is deliberately not a Tab stop.
-Check each of these in Chrome, Firefox, Edge and Safari, and with NVDA (Windows) and VoiceOver
-(macOS):
-
-- **Request modal, keyboard only:** open a request ID with Enter. Focus lands inside the modal
-  and Tab cycles through the close button, "Read the note in Activity" (returned requests only),
-  Close and Download without leaving the modal. Arrow keys, Page Down and Home scroll the
-  content. Escape closes the modal and focus returns to the request ID you opened.
-- **Every overlay closes on Escape** and returns focus to whatever opened it: the request
-  modal, the "Discard this draft?" confirmation (the draft is kept), and the Download menu on
-  the history table. This is set app-wide in `theme.js`, so new modals and menus inherit it.
-- **"Read the note in Activity":** activating it scrolls to the OCFO note and moves focus there,
-  with a visible outline.
-- **Screen reader structure:** the close button is announced as "Close request RR-…". The
-  headings (H key) are the request ID and status, Submitted request, Remitter notes and
-  Certification (when present), Activity, then each Activity event. Customer, Requested by and
-  Justification are read with their labels. T finds the "Fees in this request" table, and its
-  cells are announced with their column headers. Activity is announced as a list with its
-  number of events.
-- **Safari:** by default Safari's Tab key skips links (Option+Tab reaches them). Testers should
-  turn on Settings → Advanced → "Press Tab to highlight each item" first. This is a browser
-  setting, not an app defect.
+Color, status, validation, casing, link, data display and accessibility rules, plus the
+accessibility test checklist, are in [DESIGN.md](DESIGN.md).
 
 ## Known POC shortcuts
 
@@ -111,6 +71,8 @@ Check each of these in Chrome, Firefox, Edge and Safari, and with NVDA (Windows)
   Clock Expired and Case Rejected are pending from the business; the app shows "Definition to
   be provided" until they're added in `src/data/mockData.js`. In production the backend should store the
   definition with each request, as the POC does at submission.
+- Fee names are hard-coded in the mock data. In production the API should send them
+  display-ready from the source (see "Data display" in [DESIGN.md](DESIGN.md)).
 - E-Note deliveries are simulated; notifications currently go out only at submission.
 - No auth (the real page sits behind existing credentials), no "returned for correction"
   resubmit flow yet, no pagination on the history table.

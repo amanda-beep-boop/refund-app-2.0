@@ -25,10 +25,10 @@ import RequestModal from './RequestModal';
 const COLUMNS = [
   { key: 'id', label: 'Request ID' },
   { key: 'customer', label: 'Customer' },
-  { key: 'requestedBy', label: 'Requested by' },
-  { key: 'submittedAt', label: 'Date submitted' },
+  { key: 'requestedBy', label: 'Requested By' },
+  { key: 'submittedAt', label: 'Date Submitted' },
   { key: 'status', label: 'Status' },
-  { key: 'statusDate', label: 'Status date' },
+  { key: 'statusDate', label: 'Status Date' },
   { key: 'total', label: 'Amount', align: 'right' },
 ];
 
@@ -136,7 +136,7 @@ export default function HistoryTable() {
         <Select
           label="Status"
           data={[
-            { value: 'all', label: 'All statuses' },
+            { value: 'all', label: 'All Statuses' },
             ...Object.entries(STATUS_META).map(([value, meta]) => ({ value, label: meta.label })),
           ]}
           value={filters.status}
@@ -170,7 +170,7 @@ export default function HistoryTable() {
           disabled={!anyFilter}
           onClick={() => setFilters({ status: 'all', from: '', to: '', q: '' })}
         >
-          Clear filters
+          Clear Filters
         </Button>
       </Group>
 
@@ -207,8 +207,8 @@ export default function HistoryTable() {
               rightSection={<Chevron dir="down" size={12} />}
             >
               {selectedRows.length
-                ? `Download ${selectedRows.length} selected`
-                : `Download all (${exportable.length})`}
+                ? `Download ${selectedRows.length} Selected`
+                : `Download All (${exportable.length})`}
             </Button>
           </Menu.Target>
           <Menu.Dropdown>
@@ -219,7 +219,7 @@ export default function HistoryTable() {
               </Text>
             </Menu.Item>
             <Menu.Item onClick={() => downloadHistoryDocx(exportRows)}>
-              Word document
+              Word Document
               <Text fz="sm" c="dimmed">
                 .docx with the table
               </Text>

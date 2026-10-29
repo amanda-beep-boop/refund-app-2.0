@@ -50,7 +50,7 @@ export default function Step2Details() {
       <Paper withBorder radius="sm">
         <Group justify="space-between" p="md" wrap="wrap">
           <Title order={2} fz="lg">
-            Reason for this request
+            Reason for This Request
           </Title>
           <Text fz="sm" c="dimmed">
             One justification and remark cover every fee in the request.
@@ -103,10 +103,10 @@ export default function Step2Details() {
         <Stack gap={4} align="flex-end" maw={520}>
           <Group gap="xs">
             <Button variant="default" onClick={() => setStep(1)} leftSection={<Chevron dir="left" />}>
-              Back to fees
+              Back to Fees
             </Button>
             <Button disabled={!canContinue} onClick={() => setStep(3)} rightSection={<Chevron />}>
-              Continue to review
+              Continue to Review
             </Button>
           </Group>
           <DisabledHint items={missing} />

@@ -18,7 +18,7 @@ export default function App() {
       view === 'flow'
         ? `Step ${step} of ${STEP_TITLES.length}: ${STEP_TITLES[step - 1]}`
         : view === 'confirm'
-          ? 'Request submitted'
+          ? 'Request Submitted'
           : null;
     document.title = page ? `${page} – ${APP_NAME}` : APP_NAME;
 
@@ -38,7 +38,7 @@ export default function App() {
       <Box component="header" className="app-nav">
         <Container size={1120} py="sm">
           {/* The app name is the way home from every page. From a request in progress it saves
-              the draft first (the "Draft saved" message says so), like "Save draft & exit". */}
+              the draft first (the "Draft saved" message says so), like "Save Draft & Exit". */}
           <Anchor
             href="/"
             onClick={(e) => {

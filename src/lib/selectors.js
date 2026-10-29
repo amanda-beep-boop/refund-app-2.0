@@ -179,4 +179,4 @@ export const requestActivity = (request) => {
 };
 
 export const enoteTitle = (e) =>
-  `E-Note sent ${e.notified.length} notification${e.notified.length === 1 ? '' : 's'}`;
+  `E-Note Sent ${e.notified.length} Notification${e.notified.length === 1 ? '' : 's'}`;

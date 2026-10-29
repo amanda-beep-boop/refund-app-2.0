@@ -110,7 +110,7 @@ export default function RequestModal({ requestId, onClose }) {
         <Button variant="default" onClick={onClose}>
           Close
         </Button>
-        <Button onClick={() => downloadRequestPdf(request)}>Download request (PDF)</Button>
+        <Button onClick={() => downloadRequestPdf(request)}>Download Request (PDF)</Button>
       </Group>
     </Modal>
   );

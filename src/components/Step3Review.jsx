@@ -18,7 +18,7 @@ export default function Step3Review() {
 
       <RequestRecord
         request={draftRequest(draft)}
-        title="Request to be submitted"
+        title="Request to Be Submitted"
         headingOrder={2}
         footer={
           <>
@@ -51,7 +51,7 @@ export default function Step3Review() {
               onClick={() => setStep(2)}
               leftSection={<Chevron dir="left" />}
             >
-              Back to details
+              Back to Details
             </Button>
             <Button disabled={!draft.certified} loading={sending} onClick={submit}>
               Submit to OCFO

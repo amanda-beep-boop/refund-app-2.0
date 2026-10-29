@@ -44,7 +44,7 @@ export default function CustomerSearch() {
   return (
     <Paper withBorder radius="sm" p="md">
       <Title order={2} fz="lg" mb="sm">
-        Start a new refund request
+        Start a New Refund Request
       </Title>
       <form onSubmit={search}>
         <Group align="flex-end" gap="sm">
@@ -120,7 +120,7 @@ export default function CustomerSearch() {
               </dl>
             </Stack>
             <Button onClick={() => startDraft(result.id)} rightSection={<Chevron />}>
-              Start refund request
+              Start Refund Request
             </Button>
           </Group>
         </Card>

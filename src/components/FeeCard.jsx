@@ -202,7 +202,7 @@ export default function FeeCard({ fee }) {
                 </Button>
                 {fee.remitter && source !== 'record' && (
                   <Button size="sm" variant="subtle" onClick={() => restoreRemitter(fee)}>
-                    Restore record
+                    Restore Record
                   </Button>
                 )}
                 {fee.remitter && source === 'record' && (
@@ -246,7 +246,7 @@ export default function FeeCard({ fee }) {
                 </Button>
                 {source === 'customized' && (
                   <Button size="sm" variant="subtle" onClick={() => restoreRemitter(fee)}>
-                    Restore record
+                    Restore Record
                   </Button>
                 )}
               </Group>

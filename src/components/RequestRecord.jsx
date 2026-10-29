@@ -17,7 +17,7 @@ import { Mono, Amount, Field, FieldLabel, RemitterSourceAnnotation, LumpSumAnnot
 // in the same gray; weight otherwise only on the total.
 export default function RequestRecord({
   request,
-  title = 'Submitted request',
+  title = 'Submitted Request',
   headingOrder = 3,
   footer,
 }) {
@@ -81,13 +81,13 @@ export default function RequestRecord({
             {/* Names the table for screen readers (T to jump to tables); the column headers
                 already make it clear on screen. */}
             <caption>
-              <VisuallyHidden>Fees in this request</VisuallyHidden>
+              <VisuallyHidden>Fees in This Request</VisuallyHidden>
             </caption>
             <Table.Thead>
               <Table.Tr>
                 <Table.Th w="26%">Fee</Table.Th>
                 <Table.Th w="22%">Paid</Table.Th>
-                <Table.Th>Refund to</Table.Th>
+                <Table.Th>Refund To</Table.Th>
                 <Table.Th ta="right" w={140}>
                   Refund
                 </Table.Th>
@@ -141,7 +141,7 @@ export default function RequestRecord({
             <Table.Tfoot>
               <Table.Tr>
                 <Table.Th colSpan={3} scope="row" ta="right">
-                  Total refund requested
+                  Total Refund Requested
                 </Table.Th>
                 <Table.Td ta="right">
                   <Amount cents={request.total} fw={600} />
@@ -154,7 +154,7 @@ export default function RequestRecord({
 
       {notes.length > 0 && (
         <div className="form-record-section form-record-pad">
-          <FieldLabel component={sectionHeading}>Remitter notes</FieldLabel>
+          <FieldLabel component={sectionHeading}>Remitter Notes</FieldLabel>
           <List spacing={4} fz="sm" mt={4} className="readable">
             {notes.map((n) => (
               <List.Item key={n.feeId}>
