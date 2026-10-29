@@ -1,5 +1,8 @@
 # Fee Refund Requests — POC
 
+**New to the project?** Start with [HANDOFF.md](HANDOFF.md): the state of the work, what to do
+first, what to keep as is, and the open questions.
+
 A working proof of concept of the fee refund request feature: authorized users look up a
 customer account, select fees eligible for refund, confirm amounts and remitters, and
 submit the request to the Office of the Chief Financial Officer (OCFO) for review.
